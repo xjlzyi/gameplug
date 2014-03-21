@@ -42,11 +42,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-
 // CPassGameProtectionDlg 对话框
-
-
-
 CPassGameProtectionDlg::CPassGameProtectionDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CPassGameProtectionDlg::IDD, pParent)
 	, m_strSysPath(_T(""))
@@ -73,7 +69,6 @@ END_MESSAGE_MAP()
 
 
 // CPassGameProtectionDlg 消息处理程序
-
 BOOL CPassGameProtectionDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -162,8 +157,13 @@ HCURSOR CPassGameProtectionDlg::OnQueryDragIcon()
 void CPassGameProtectionDlg::OnBnClickedBtnFindSyspath()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT|OFN_ALLOWMULTISELECT, 
-		NULL, this);
+	CFileDialog dlg(
+		TRUE, 
+		NULL, 
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, 
+		NULL, 
+		this);
 	if (dlg.DoModal() == IDOK)
 	{
 		m_strSysPath = dlg.GetPathName();

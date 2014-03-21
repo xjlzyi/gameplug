@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CPassGameProtectionDlg ¶Ô»°¿ò
@@ -34,4 +35,6 @@ public:
 	afx_msg void OnBnClickedBtnStart();
 	afx_msg void OnBnClickedBtnStop();
 	CString m_strSysPath;
+	CButton m_btnStartSys;
+	CButton m_btnStopSys;
 };

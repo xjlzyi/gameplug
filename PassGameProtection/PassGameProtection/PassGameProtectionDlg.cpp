@@ -58,6 +58,8 @@ void CPassGameProtectionDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_SYSPATH, m_strSysPath);
+	DDX_Control(pDX, IDC_BTN_START, m_btnStartSys);
+	DDX_Control(pDX, IDC_BTN_STOP, m_btnStopSys);
 }
 
 BEGIN_MESSAGE_MAP(CPassGameProtectionDlg, CDialogEx)
@@ -156,20 +158,40 @@ HCURSOR CPassGameProtectionDlg::OnQueryDragIcon()
 }
 
 
-
+//查找驱动文件
 void CPassGameProtectionDlg::OnBnClickedBtnFindSyspath()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT|OFN_ALLOWMULTISELECT, 
+		NULL, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		m_strSysPath = dlg.GetPathName();
+		UpdateData(FALSE);
+	}
 }
 
-
+//开启驱动
 void CPassGameProtectionDlg::OnBnClickedBtnStart()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	m_strSysPath = m_strSysPath.Trim();
+	if (!m_strSysPath.IsEmpty())
+	{
+		//改变按钮状态
+		m_btnStartSys.EnableWindow(FALSE);
+		m_btnStopSys.EnableWindow(TRUE);
+	}
 }
 
-
+//停止驱动
 void CPassGameProtectionDlg::OnBnClickedBtnStop()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+
+	//改变按钮状态
+	m_btnStartSys.EnableWindow(TRUE);
+	m_btnStopSys.EnableWindow(FALSE);
 }

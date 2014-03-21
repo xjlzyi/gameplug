@@ -1,6 +1,0 @@
-#需要忽略的文件
-Debug
-Release
-ipch
-*.suo
-*.sdf

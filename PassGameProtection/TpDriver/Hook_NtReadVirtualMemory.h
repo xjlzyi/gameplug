@@ -1,0 +1,5 @@
+#ifndef __HOOK_NTREADVIRTUALMEMORY_H__
+#define __HOOK_NTREADVIRTUALMEMORY_H__
+
+
+#endif

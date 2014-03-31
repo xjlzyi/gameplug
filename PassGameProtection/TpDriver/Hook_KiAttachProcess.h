@@ -1,0 +1,5 @@
+#ifndef __HOOK_KIATTACHPROCESS_H__
+#define __HOOK_KIATTACHPROCESS_H__
+
+
+#endif

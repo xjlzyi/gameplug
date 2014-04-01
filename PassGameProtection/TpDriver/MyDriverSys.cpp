@@ -7,6 +7,10 @@
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
+	HookNtOpenProcess();
+	HookNtReadVirtualMemory();
+	HookNtWriteVirtualMemory();
+
 	CreateMyDevice(pDriverObject);
 	pDriverObject->DriverUnload=Driver_Unload;
 
@@ -63,6 +67,9 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
 
+	UnHookNtOpenProcess();
+	UnHookNtReadVirtualMemory();
+	UnHookNtWriteVirtualMemory();
 	
 	//É¾³ý·ûºÅÁ´½Ó
 	RtlInitUnicodeString(&symName,L"\\??\\MyDriverLinkName");

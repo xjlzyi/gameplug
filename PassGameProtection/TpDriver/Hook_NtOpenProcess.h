@@ -3,11 +3,11 @@
 
 #include "PageProtect.h"
 
-__declspec(naked) 
-NTSTATUS __stdcall MyNtOpenProcess(PHANDLE ProcessHandle,
-									ACCESS_MASK DesiredAccess,
-									POBJECT_ATTRIBUTES ObjectAttributes,
-									PCLIENT_ID ClientId) 
+__declspec(naked) NTSTATUS __stdcall MyNtOpenProcess(
+	PHANDLE ProcessHandle,
+	ACCESS_MASK DesiredAccess,
+	POBJECT_ATTRIBUTES ObjectAttributes,
+	PCLIENT_ID ClientId) 
 {
 	_asm
 	{
@@ -15,7 +15,7 @@ NTSTATUS __stdcall MyNtOpenProcess(PHANDLE ProcessHandle,
 	}
 }
 
-VOID HookTpOpenProcess()
+VOID HookNtOpenProcess()
 {
 
 
@@ -25,7 +25,7 @@ VOID HookTpOpenProcess()
 	ResetPageProtect();
 }
 
-VOID UnHookTpOpenProcess()
+VOID UnHookNtOpenProcess()
 {
 	RemovePageProtect();
 	

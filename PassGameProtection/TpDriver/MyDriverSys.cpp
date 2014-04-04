@@ -7,7 +7,7 @@
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
-	HookNtOpenProcess();
+	HookNtOpenProcess_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
 
@@ -67,7 +67,7 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
 
-	UnHookNtOpenProcess();
+	UnHookNtOpenProcess_Win7();
 	UnHookNtReadVirtualMemory();
 	UnHookNtWriteVirtualMemory();
 	

@@ -103,11 +103,11 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>
       </FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32=100;_X86_=1;WINVER=0x501;</PreprocessorDefinitions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32=100;_X86_=1;WINVER=0x501;DBG=1;</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -128,7 +128,7 @@
       <BaseAddress>0x20000</BaseAddress>
       <RandomizedBaseAddress />
       <DataExecutionPrevention />
-      <AdditionalOptions>/DRIVER /subsystem:native  /IGNORE:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/DRIVER /subsystem:native /SECTION:INIT,D /IGNORE:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -136,12 +136,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DriverHead.h" />
+    <ClInclude Include="GlobalFunction.h" />
     <ClInclude Include="Hook_KiAttachProcess.h" />
     <ClInclude Include="Hook_NtOpenProcess.h" />
     <ClInclude Include="Hook_NtReadVirtualMemory.h" />
     <ClInclude Include="Hook_NtWriteVirtualMemory.h" />
     <ClInclude Include="MyDriverSys.h" />
-    <ClInclude Include="PageProtect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

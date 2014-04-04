@@ -35,10 +35,10 @@
     <ClInclude Include="Hook_KiAttachProcess.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="PageProtect.h">
+    <ClInclude Include="MyDriverSys.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MyDriverSys.h">
+    <ClInclude Include="GlobalFunction.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

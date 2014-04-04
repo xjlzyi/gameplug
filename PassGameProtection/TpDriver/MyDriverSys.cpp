@@ -7,6 +7,7 @@
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
+	KdPrint(("¿ªÊ¼²âÊÔ----"));
 	HookNtOpenProcess_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();

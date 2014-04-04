@@ -1,5 +1,5 @@
-#ifndef __PAGE_PROTECT_H__
-#define __PAGE_PROTECT_H__
+#ifndef __GLOBALFUNCTION_H__
+#define __GLOBALFUNCTION_H__
 
 #include "DriverHead.h"
 
@@ -9,9 +9,9 @@ VOID RemovePageProtect()
 	_asm
 	{
 		cli
-			mov eax,cr0
-			and eax, not 10000h
-			mov cr0,eax
+		mov eax,cr0
+		and eax, not 10000h
+		mov cr0,eax
 	}
 }
 
@@ -21,9 +21,9 @@ VOID ResetPageProtect()
 	__asm
 	{
 		mov eax,cr0
-			or eax,10000h
-			mov cr0,eax
-			sti
+		or eax,10000h
+		mov cr0,eax
+		sti
 	}
 }
 
@@ -51,6 +51,5 @@ ULONG GetServiceOldAddr(PCWSTR FunName)
 	RtlInitUnicodeString(&_FunName,FunName);
 	return (ULONG)MmGetSystemRoutineAddress(&_FunName);
 }
-
 
 #endif

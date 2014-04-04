@@ -1,7 +1,7 @@
 #ifndef __HOOK_NTWRITEVIRTUALMEMORY_H__
 #define __HOOK_NTWRITEVIRTUALMEMORY_H__
 
-#include "PageProtect.h"
+#include "GlobalFunction.h"
 
 __declspec(naked) NTSTATUS __stdcall MyNtWriteVirtualMemory(
 	IN HANDLE ProcessHandle,

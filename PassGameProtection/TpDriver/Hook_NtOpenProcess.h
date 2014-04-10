@@ -2,7 +2,12 @@
 #define __HOOK_NTOPENPROCESS_H__
 
 #include "GlobalFunction.h"
+//自定义NtOpenProcess InLine Hook的跳转地址
+ULONG g_NtOpenProcessJmpAddr;
+//原生ObOpenObjectByPointer地址
+ULONG g_OriginPointAddr;
 
+#pragma PAGECODE
 __declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7(
 	PHANDLE ProcessHandle,
 	ACCESS_MASK DesiredAccess,
@@ -11,10 +16,14 @@ __declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7(
 {
 	_asm
 	{
-		retn 0x14
+		push dword ptr [ebp-0F4h]
+		push dword ptr [ebp-0F0h]
+		push g_NtOpenProcessJmpAddr
+		jmp g_OriginPointAddr
 	}
 }
 
+#pragma PAGECODE
 VOID HookNtOpenProcess_Win7()
 {
 //  NtOpenProcess------------------------------------------------------------
@@ -49,32 +58,41 @@ VOID HookNtOpenProcess_Win7()
 	};
 	//特征码长度
 	SIZE_T nLen = sizeof(pCode);
-	//原生NtOpenProcess地址
-	ULONG uOriginNtOpenProcessAddr = GetServiceOldAddr(L"NtOpenProcess");
-	KdPrint(("NtOpenProcess地址:%x\n",uOriginNtOpenProcessAddr));
 	//获取原生PsOpenProcess地址
 	ULONG uOriginPsOpenProcessAddr = GetServiceOldAddr(L"PsRevertThreadToSelf") + 0x6bb;
 	KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
+	//获取原生ObOpenObjectByPointer地址
+	g_OriginPointAddr = GetServiceOldAddr(L"ObOpenObjectByPointer");
 	//根据特征码获得HOOK的起始地址
 	ULONG uMyHookedNtOpenProcessAddr = SearchCode(uOriginPsOpenProcessAddr, pCode, nLen) - nLen;
 	KdPrint(("HOOK的起始地址:%x\n",uMyHookedNtOpenProcessAddr));
 	//计算出自定义InLine Hook的跳转地址
-	ULONG uMyHookedNtOpenProcessJmpAddr = uMyHookedNtOpenProcessAddr + nLen + 4;
-	KdPrint(("自定义InLine Hook的跳转地址:%x\n",uMyHookedNtOpenProcessJmpAddr));
+	g_NtOpenProcessJmpAddr = uMyHookedNtOpenProcessAddr + nLen + 4;
+	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
 	//计算出TP InLine Hook的跳转地址
 	ULONG uTPHookedNtOpenProcessJmpAddr = uMyHookedNtOpenProcessAddr + nLen - 1;
 	KdPrint(("TP InLine Hook的跳转地址:%x\n",uTPHookedNtOpenProcessJmpAddr));
 
-	RemovePageProtect();
-	//HOOK
-	ResetPageProtect();
+	WPON();
+	__asm
+	{
+		mov ebx,uMyHookedNtOpenProcessAddr
+		mov byte ptr [ebx+0],0xE9
+		lea eax,MyNtOpenProcess_Win7
+		sub eax,uMyHookedNtOpenProcessAddr
+		sub eax,5			//win7下不一定减5，待测试
+		mov [ebx+1],eax
+	}
+	WPOFF();
 }
 
+#pragma PAGECODE
 VOID UnHookNtOpenProcess_Win7()
 {
-	RemovePageProtect();	
+	WPON();	
 	//UnHook
-	ResetPageProtect();
+
+	WPOFF();
 }
 
 #endif

@@ -3,19 +3,25 @@
 #include "Hook_KiAttachProcess.h"
 #include "Hook_NtReadVirtualMemory.h"
 #include "Hook_NtWriteVirtualMemory.h"
+#include "Hook_NtOpenThread.h"
 
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
 	KdPrint(("开始测试----"));
-	HookNtOpenProcess_Win7();
-	HookNtReadVirtualMemory();
-	HookNtWriteVirtualMemory();
-
+	Hook();
 	CreateMyDevice(pDriverObject);
 	pDriverObject->DriverUnload=Driver_Unload;
 
 	return STATUS_SUCCESS;
+}
+
+VOID Hook()
+{
+	HookNtOpenProcess_Win7();
+	HookNtOpenThread_Win7();
+	HookNtReadVirtualMemory();
+	HookNtWriteVirtualMemory();
 }
 
 //创建设备
@@ -68,10 +74,7 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
 
-	UnHookNtOpenProcess_Win7();
-	UnHookNtReadVirtualMemory();
-	UnHookNtWriteVirtualMemory();
-	
+	UnHook();	
 	//删除符号链接
 	RtlInitUnicodeString(&symName,L"\\??\\MyDriverLinkName");
 	IoDeleteSymbolicLink(&symName);
@@ -80,4 +83,12 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	IoDeleteDevice(pDev);
 
 	KdPrint(("驱动成功被卸载...OK-----------\n"));
+}
+
+VOID UnHook()
+{
+	UnHookNtOpenProcess_Win7();
+	UnHookNtOpenThread_Win7();
+	UnHookNtReadVirtualMemory();
+	UnHookNtWriteVirtualMemory();
 }

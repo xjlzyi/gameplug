@@ -3,7 +3,7 @@
 
 #include "DriverHead.h"
 
-VOID RemovePageProtect()
+VOID WPON()
 {
 	//去除保护
 	_asm
@@ -15,7 +15,7 @@ VOID RemovePageProtect()
 	}
 }
 
-VOID ResetPageProtect()
+VOID WPOFF()
 {
 	//还原保护
 	__asm

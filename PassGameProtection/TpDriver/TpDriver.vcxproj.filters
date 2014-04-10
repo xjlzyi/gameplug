@@ -41,5 +41,8 @@
     <ClInclude Include="GlobalFunction.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Hook_NtOpenThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

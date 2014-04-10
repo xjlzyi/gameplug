@@ -3,6 +3,5 @@ Debug
 Release
 Driver
 ipch
-*.suo
 *.sdf
 *.opensdf

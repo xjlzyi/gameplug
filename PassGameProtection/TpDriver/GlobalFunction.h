@@ -27,7 +27,7 @@ VOID WPOFF()
 	}
 }
 
-//搜索特征码->寻找地址
+//搜索特征码寻找地址
 ULONG SearchCode(int StartingAddr,char* pCode,int Length)
 {
 	char Destination[256]="";
@@ -44,12 +44,29 @@ ULONG SearchCode(int StartingAddr,char* pCode,int Length)
 	return 0;
 }
 
-//获得SSDT服务原始地址
+//通过名称获得SSDT服务原始地址
 ULONG GetServiceOldAddr(PCWSTR FunName)
 {
 	UNICODE_STRING _FunName;
 	RtlInitUnicodeString(&_FunName,FunName);
 	return (ULONG)MmGetSystemRoutineAddress(&_FunName);
+}
+
+//判断进程名称
+extern"C" __declspec(dllimport) UCHAR* PsGetProcessImageFileName(IN PEPROCESS Process);
+bool CheckProcessName(char* szName)
+{
+	//获取当前进程
+	PEPROCESS nEProcess = PsGetCurrentProcess();
+	//获取进程名称
+	char* szProessaName = (char*)PsGetProcessImageFileName(nEProcess);
+	//比较进程名
+	if(strcmp(szProessaName,szName)==0)
+	{		
+		return true;
+	}
+
+	return false;
 }
 
 #endif

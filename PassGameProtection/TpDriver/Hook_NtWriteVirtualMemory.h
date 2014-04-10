@@ -6,6 +6,7 @@
 //NtWriteVirtualMemoryÖÐCallµÄµØÖ·
 ULONG g_NtWriteVirtualMemory;
 
+ULONG g_NtWritePush;
 #pragma PAGECODE
 __declspec(naked) NTSTATUS __stdcall MyNtWriteVirtualMemory(
 	IN HANDLE ProcessHandle,
@@ -17,7 +18,7 @@ __declspec(naked) NTSTATUS __stdcall MyNtWriteVirtualMemory(
 	_asm
 	{
 		push 0x18
-		push 0x83e97a00
+		push g_NtWritePush
 		jmp g_NtWriteVirtualMemory
 	}
 }
@@ -36,6 +37,7 @@ VOID HookNtWriteVirtualMemory()
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
+		mov eax,[eax]
 		add eax,0x454
 		lea ebx,MyNtWriteVirtualMemory
 		mov [eax],ebx

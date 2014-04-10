@@ -2,11 +2,14 @@
 #define __HOOK_NTOPENPROCESS_H__
 
 #include "GlobalFunction.h"
+
+ULONG g_MyHookedNtOpenProcessAddr;
 //自定义NtOpenProcess InLine Hook的跳转地址
 ULONG g_NtOpenProcessJmpAddr;
 //原生ObOpenObjectByPointer地址
 ULONG g_OriginPointAddr;
-
+//TP InLine Hook的跳转地址
+ULONG g_TPHookedNtOpenProcessJmpAddr;
 #pragma PAGECODE
 __declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7(
 	PHANDLE ProcessHandle,
@@ -18,8 +21,19 @@ __declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7(
 	{
 		push dword ptr [ebp-0F4h]
 		push dword ptr [ebp-0F0h]
-		push g_NtOpenProcessJmpAddr
-		jmp g_OriginPointAddr
+
+	}
+	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe") || CheckProcessName("Client.exe"))
+	{
+		__asm
+		{
+			jmp g_TPHookedNtOpenProcessJmpAddr
+		}
+	}
+	__asm
+	{
+		call g_OriginPointAddr
+		jmp g_NtOpenProcessJmpAddr		
 	}
 }
 
@@ -34,20 +48,10 @@ VOID HookNtOpenProcess_Win7()
 // 	84019a04 e863440600      call    nt!PsRevertThreadToSelf+0x6bb (8407de6c)
 
 //	PsOpenProcess-------------------------------------------------------------
-//	00017068 f9906800 d5e883e5 8bffe07c
-// 	8407e075 8d85fcfeffff    lea     eax,[ebp-104h]
-// 	8407e07b 50              push    eax
-// 	8407e07c ff7514          push    dword ptr [ebp+14h]
-// 	8407e07f ff352c00f783    push    dword ptr [nt!PsProcessType (83f7002c)]
-// 	8407e085 53              push    ebx
-// 	8407e086 8d8580feffff    lea     eax,[ebp-180h]
-// 	8407e08c 50              push    eax
 // 	8407e08d ffb50cffffff    push    dword ptr [ebp-0F4h]
 // 	8407e093 ffb510ffffff    push    dword ptr [ebp-0F0h]
 //	8407e099 e8c655fdff      call    nt!ObOpenObjectByPointer (84053664)-----HOOK的位置
 
-	//ObOpenObjectByPointer偏移量是0x22D
-	//8407de6c - 840199dc = 0x64490
 	//特征码
 	char pCode[] = 
 	{
@@ -64,24 +68,23 @@ VOID HookNtOpenProcess_Win7()
 	//获取原生ObOpenObjectByPointer地址
 	g_OriginPointAddr = GetServiceOldAddr(L"ObOpenObjectByPointer");
 	//根据特征码获得HOOK的起始地址
-	ULONG uMyHookedNtOpenProcessAddr = SearchCode(uOriginPsOpenProcessAddr, pCode, nLen) - nLen;
-	KdPrint(("HOOK的起始地址:%x\n",uMyHookedNtOpenProcessAddr));
+	g_MyHookedNtOpenProcessAddr = SearchCode(uOriginPsOpenProcessAddr, pCode, nLen) - nLen;
+	KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenProcessAddr));
 	//计算出自定义InLine Hook的跳转地址
-	g_NtOpenProcessJmpAddr = uMyHookedNtOpenProcessAddr + nLen + 4;
+	g_NtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen + 4;
 	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
 	//计算出TP InLine Hook的跳转地址
-	ULONG uTPHookedNtOpenProcessJmpAddr = uMyHookedNtOpenProcessAddr + nLen - 1;
-	KdPrint(("TP InLine Hook的跳转地址:%x\n",uTPHookedNtOpenProcessJmpAddr));
-
+	g_TPHookedNtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen - 1;
+	KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
+	//win7下不一定减5，待测试
+	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
 	WPON();
 	__asm
 	{
-		mov ebx,uMyHookedNtOpenProcessAddr
-		mov byte ptr [ebx+0],0xE9
-		lea eax,MyNtOpenProcess_Win7
-		sub eax,uMyHookedNtOpenProcessAddr
-		sub eax,5			//win7下不一定减5，待测试
-		mov [ebx+1],eax
+		mov eax,g_MyHookedNtOpenProcessAddr
+		mov byte ptr [eax],0xE9
+		mov ebx,nJmpAddr	
+		mov dword ptr [eax+1],ebx
 	}
 	WPOFF();
 }
@@ -89,9 +92,16 @@ VOID HookNtOpenProcess_Win7()
 #pragma PAGECODE
 VOID UnHookNtOpenProcess_Win7()
 {
-	WPON();	
-	//UnHook
+	char pCode[] = 
+	{
+		(char)0xff, (char)0xb5,	(char)0x0c, 
+		(char)0xff, (char)0xff, (char)0xff, 
+		(char)0xff, (char)0xb5, (char)0x10, 
+		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
+	};
 
+	WPON();
+	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
 	WPOFF();
 }
 

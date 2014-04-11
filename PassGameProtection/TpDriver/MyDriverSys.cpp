@@ -19,7 +19,7 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 VOID Hook()
 {
 	HookNtOpenProcess_Win7();
-	HookNtOpenThread_Win7();
+	//HookNtOpenThread_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
 }
@@ -88,7 +88,7 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 VOID UnHook()
 {
 	UnHookNtOpenProcess_Win7();
-	UnHookNtOpenThread_Win7();
+	//UnHookNtOpenThread_Win7();
 	UnHookNtReadVirtualMemory();
 	UnHookNtWriteVirtualMemory();
 }

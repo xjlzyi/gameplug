@@ -5,6 +5,8 @@
 
 //自定义NtOpenThread InLine Hook的跳转地址
 ULONG g_NtOpenThreadJmpAddr;
+//根据特征码获得HOOK的起始地址
+ULONG g_MyHookedNtOpenThreadAddr;
 #pragma PAGECODE
 __declspec(naked) NTSTATUS __stdcall MyNtOpenThread_Win7()
 {
@@ -12,8 +14,8 @@ __declspec(naked) NTSTATUS __stdcall MyNtOpenThread_Win7()
 	{
 		push dword ptr [ebp-0F0h]
 		push dword ptr [ebp-0ECh]
-		push g_NtOpenThreadJmpAddr
-		jmp g_OriginPointAddr
+		call g_OriginPointAddr
+		jmp g_NtOpenThreadJmpAddr
 	}
 }
 
@@ -34,23 +36,22 @@ VOID HookNtOpenThread_Win7()
 	SIZE_T nLen = sizeof(pCode);
 	//获取原生PsOpenThread地址
 	ULONG uOriginPsOpenThreadAddr = GetServiceOldAddr(L"PsOpenThread");
-	KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenThreadAddr));
+	//KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenThreadAddr));
 	//根据特征码获得HOOK的起始地址
-	ULONG uMyHookedNtOpenThreadAddr = SearchCode(uOriginPsOpenThreadAddr, pCode, nLen) - nLen;
-	KdPrint(("HOOK的起始地址:%x\n",uMyHookedNtOpenThreadAddr));
+	g_MyHookedNtOpenThreadAddr = SearchCode(uOriginPsOpenThreadAddr, pCode, nLen) - nLen;
+	//KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenThreadAddr));
 	//计算出自定义InLine Hook的跳转地址
-	g_NtOpenThreadJmpAddr = uMyHookedNtOpenThreadAddr + nLen + 4;
-	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenThreadJmpAddr));
+	g_NtOpenThreadJmpAddr = g_MyHookedNtOpenThreadAddr + nLen + 4;
+	//KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenThreadJmpAddr));
 
+	int nJmpAddr = (int)MyNtOpenThread_Win7 - g_MyHookedNtOpenThreadAddr - 5;
 	WPON();
 	__asm
 	{
-		mov ebx,uMyHookedNtOpenThreadAddr
-		mov byte ptr [ebx+0],0xE9
-		lea eax,MyNtOpenThread_Win7
-		sub eax,uMyHookedNtOpenThreadAddr
-		sub eax,5			//win7下不一定减5，待测试
-		mov [ebx+1],eax
+		mov eax,g_MyHookedNtOpenThreadAddr
+		mov byte ptr [eax],0xE9
+		mov ebx,nJmpAddr	
+		mov dword ptr [eax+1],ebx
 	}
 	WPOFF();
 }
@@ -58,7 +59,16 @@ VOID HookNtOpenThread_Win7()
 #pragma PAGECODE
 VOID UnHookNtOpenThread_Win7()
 {
-
+	char pCode[] = 
+	{
+		(char)0xff, (char)0xb5,	(char)0x10, 
+		(char)0xff, (char)0xff, (char)0xff, 
+		(char)0xff, (char)0xb5, (char)0x14, 
+		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
+	};
+	WPON();
+	RtlMoveMemory((char*)g_MyHookedNtOpenThreadAddr, pCode, 5);
+	WPOFF();
 }
 
 #endif

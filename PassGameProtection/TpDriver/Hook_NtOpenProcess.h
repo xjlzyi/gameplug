@@ -11,30 +11,22 @@ ULONG g_OriginPointAddr;
 //TP InLine Hook的跳转地址
 ULONG g_TPHookedNtOpenProcessJmpAddr;
 #pragma PAGECODE
-__declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7(
-	PHANDLE ProcessHandle,
-	ACCESS_MASK DesiredAccess,
-	POBJECT_ATTRIBUTES ObjectAttributes,
-	PCLIENT_ID ClientId) 
+__declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7() 
 {
 	_asm
 	{
 		push dword ptr [ebp-0F4h]
 		push dword ptr [ebp-0F0h]
-
-	}
-	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe") || CheckProcessName("Client.exe"))
-	{
-		__asm
-		{
-			jmp g_TPHookedNtOpenProcessJmpAddr
-		}
-	}
-	__asm
-	{
 		call g_OriginPointAddr
-		jmp g_NtOpenProcessJmpAddr		
+		jmp g_NtOpenProcessJmpAddr
 	}
+// 	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe") || CheckProcessName("Client.exe"))
+// 	{
+// 		__asm
+// 		{
+// 			jmp g_TPHookedNtOpenProcessJmpAddr
+// 		}
+// 	}
 }
 
 #pragma PAGECODE
@@ -64,19 +56,19 @@ VOID HookNtOpenProcess_Win7()
 	SIZE_T nLen = sizeof(pCode);
 	//获取原生PsOpenProcess地址
 	ULONG uOriginPsOpenProcessAddr = GetServiceOldAddr(L"PsRevertThreadToSelf") + 0x6bb;
-	KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
+	//KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
 	//获取原生ObOpenObjectByPointer地址
 	g_OriginPointAddr = GetServiceOldAddr(L"ObOpenObjectByPointer");
 	//根据特征码获得HOOK的起始地址
 	g_MyHookedNtOpenProcessAddr = SearchCode(uOriginPsOpenProcessAddr, pCode, nLen) - nLen;
-	KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenProcessAddr));
+	//KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenProcessAddr));
 	//计算出自定义InLine Hook的跳转地址
 	g_NtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen + 4;
-	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
+	//KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
 	//计算出TP InLine Hook的跳转地址
 	g_TPHookedNtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen - 1;
-	KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
-	//win7下不一定减5，待测试
+	//KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
+	
 	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
 	WPON();
 	__asm

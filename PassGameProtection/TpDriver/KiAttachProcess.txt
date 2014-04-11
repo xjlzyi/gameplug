@@ -1,0 +1,104 @@
+nt!KiAttachProcess:
+83e8a8d3 8bff            mov     edi,edi
+83e8a8d5 55              push    ebp
+83e8a8d6 8bec            mov     ebp,esp
+83e8a8d8 53              push    ebx
+83e8a8d9 8b5d08          mov     ebx,dword ptr [ebp+8]
+83e8a8dc 56              push    esi
+83e8a8dd 8bf0            mov     esi,eax
+83e8a8df 8b4510          mov     eax,dword ptr [ebp+10h]
+83e8a8e2 57              push    edi
+83e8a8e3 8d7e40          lea     edi,[esi+40h]
+83e8a8e6 57              push    edi
+83e8a8e7 e8cd000000      call    nt!KiMoveApcState (83e8a9b9)
+83e8a8ec 8b4d10          mov     ecx,dword ptr [ebp+10h]
+83e8a8ef 897f04          mov     dword ptr [edi+4],edi
+83e8a8f2 893f            mov     dword ptr [edi],edi
+83e8a8f4 8d4648          lea     eax,[esi+48h]
+83e8a8f7 894004          mov     dword ptr [eax+4],eax
+83e8a8fa 8900            mov     dword ptr [eax],eax
+83e8a8fc 8d8670010000    lea     eax,[esi+170h]
+83e8a902 c6465400        mov     byte ptr [esi+54h],0
+83e8a906 c6465500        mov     byte ptr [esi+55h],0
+83e8a90a c6465600        mov     byte ptr [esi+56h],0
+83e8a90e 3bc8            cmp     ecx,eax
+83e8a910 7513            jne     nt!KiAttachProcess+0x52 (83e8a925)
+83e8a912 898668010000    mov     dword ptr [esi+168h],eax
+83e8a918 89be6c010000    mov     dword ptr [esi+16Ch],edi
+83e8a91e c6863401000001  mov     byte ptr [esi+134h],1
+83e8a925 6a08            push    8
+83e8a927 58              pop     eax
+83e8a928 8d5374          lea     edx,[ebx+74h]
+83e8a92b f00fc102        lock xadd dword ptr [edx],eax
+83e8a92f 894508          mov     dword ptr [ebp+8],eax
+83e8a932 8b4508          mov     eax,dword ptr [ebp+8]
+83e8a935 a807            test    al,7
+83e8a937 7510            jne     nt!KiAttachProcess+0x76 (83e8a949)
+83e8a939 895e50          mov     dword ptr [esi+50h],ebx
+83e8a93c 33c0            xor     eax,eax
+83e8a93e 83c660          add     esi,60h
+83e8a941 f02106          lock and dword ptr [esi],eax
+83e8a944 ff7110          push    dword ptr [ecx+10h]
+83e8a947 eb55            jmp     nt!KiAttachProcess+0xcb (83e8a99e)
+83e8a949 8d7e60          lea     edi,[esi+60h]
+83e8a94c 33c0            xor     eax,eax
+83e8a94e 8bcf            mov     ecx,edi
+83e8a950 f02101          lock and dword ptr [ecx],eax
+83e8a953 8bc3            mov     eax,ebx
+83e8a955 e8fe39faff      call    nt!KiInSwapSingleProcess (83e2e358)
+83e8a95a 83650800        and     dword ptr [ebp+8],0
+83e8a95e eb27            jmp     nt!KiAttachProcess+0xb4 (83e8a987)
+83e8a960 ff4508          inc     dword ptr [ebp+8]
+83e8a963 8b4508          mov     eax,dword ptr [ebp+8]
+83e8a966 85057c1af783    test    dword ptr [nt!HvlLongSpinCountMask (83f71a7c)],eax
+83e8a96c 7511            jne     nt!KiAttachProcess+0xac (83e8a97f)
+83e8a96e f605781af78340  test    byte ptr [nt!HvlEnlightenments (83f71a78)],40h
+83e8a975 7408            je      nt!KiAttachProcess+0xac (83e8a97f)
+83e8a977 50              push    eax
+83e8a978 e8c24b0500      call    nt!HvlNotifyLongSpinWait (83edf53f)
+83e8a97d eb02            jmp     nt!KiAttachProcess+0xae (83e8a981)
+83e8a97f f390            pause
+83e8a981 8b07            mov     eax,dword ptr [edi]
+83e8a983 85c0            test    eax,eax
+83e8a985 75d9            jne     nt!KiAttachProcess+0x8d (83e8a960)
+83e8a987 33c0            xor     eax,eax
+83e8a989 8bcf            mov     ecx,edi
+83e8a98b 40              inc     eax
+83e8a98c 8701            xchg    eax,dword ptr [ecx]
+83e8a98e 85c0            test    eax,eax
+83e8a990 75ce            jne     nt!KiAttachProcess+0x8d (83e8a960)
+83e8a992 895e50          mov     dword ptr [esi+50h],ebx
+83e8a995 f02107          lock and dword ptr [edi],eax
+83e8a998 8b4510          mov     eax,dword ptr [ebp+10h]
+83e8a99b ff7010          push    dword ptr [eax+10h]
+83e8a99e 53              push    ebx
+83e8a99f e8d043ffff      call    nt!KiSwapProcess (83e7ed74)
+83e8a9a4 8a4d0c          mov     cl,byte ptr [ebp+0Ch]
+83e8a9a7 ff155881e083    call    dword ptr [nt!_imp_KfLowerIrql (83e08158)]
+83e8a9ad 5f              pop     edi
+83e8a9ae 5e              pop     esi
+83e8a9af 5b              pop     ebx
+83e8a9b0 5d              pop     ebp
+83e8a9b1 c20c00          ret     0Ch
+83e8a9b4 90              nop
+83e8a9b5 90              nop
+83e8a9b6 90              nop
+83e8a9b7 90              nop
+83e8a9b8 90              nop
+nt!KiMoveApcState:
+83e8a9b9 8bff            mov     edi,edi
+83e8a9bb 55              push    ebp
+83e8a9bc 8bec            mov     ebp,esp
+83e8a9be 53              push    ebx
+83e8a9bf 8b5d08          mov     ebx,dword ptr [ebp+8]
+83e8a9c2 56              push    esi
+83e8a9c3 57              push    edi
+83e8a9c4 6a05            push    5
+83e8a9c6 59              pop     ecx
+83e8a9c7 8bf3            mov     esi,ebx
+83e8a9c9 8bf8            mov     edi,eax
+83e8a9cb f3a5            rep movs dword ptr es:[edi],dword ptr [esi]
+83e8a9cd 66a5            movs    word ptr es:[edi],word ptr [esi]
+83e8a9cf a4              movs    byte ptr es:[edi],byte ptr [esi]
+83e8a9d0 8b13            mov     edx,dword ptr [ebx]
+83e8a9d2 3bd3            cmp     edx,ebx

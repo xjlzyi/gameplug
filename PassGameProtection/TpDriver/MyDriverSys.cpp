@@ -1,9 +1,11 @@
 #include "MyDriverSys.h"
 #include "Hook_NtOpenProcess.h"
-#include "Hook_KiAttachProcess.h"
+#include "Hook_NtOpenThread.h"
 #include "Hook_NtReadVirtualMemory.h"
 #include "Hook_NtWriteVirtualMemory.h"
-#include "Hook_NtOpenThread.h"
+#include "Hook_KeAttachProcess.h"
+#include "Hook_KeStackAttachProcess.h"
+
 
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
@@ -19,7 +21,7 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 VOID Hook()
 {
 	HookNtOpenProcess_Win7();
-	//HookNtOpenThread_Win7();
+	HookNtOpenThread_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
 }
@@ -88,7 +90,7 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 VOID UnHook()
 {
 	UnHookNtOpenProcess_Win7();
-	//UnHookNtOpenThread_Win7();
+	UnHookNtOpenThread_Win7();
 	UnHookNtReadVirtualMemory();
 	UnHookNtWriteVirtualMemory();
 }

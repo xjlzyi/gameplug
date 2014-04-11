@@ -9,7 +9,7 @@ ULONG g_NtWriteVirtualMemory;
 //NtWrite第二个push的地址
 ULONG g_NtWritePush;
 #pragma PAGECODE
-__declspec(naked) NTSTATUS __stdcall MyNtWriteVirtualMemory()
+__declspec(naked) VOID __stdcall MyNtWriteVirtualMemory()
 {
 // 	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe") || CheckProcessName("Client.exe"))
 // 	{

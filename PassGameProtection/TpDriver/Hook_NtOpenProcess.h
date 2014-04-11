@@ -11,7 +11,7 @@ ULONG g_OriginPointAddr;
 //TP InLine HookµÄÌø×ªµØÖ·
 ULONG g_TPHookedNtOpenProcessJmpAddr;
 #pragma PAGECODE
-__declspec(naked) NTSTATUS __stdcall MyNtOpenProcess_Win7() 
+__declspec(naked) VOID __stdcall MyNtOpenProcess_Win7() 
 {
 	_asm
 	{

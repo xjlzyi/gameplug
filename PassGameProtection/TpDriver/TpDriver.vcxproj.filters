@@ -32,9 +32,6 @@
     <ClInclude Include="Hook_NtWriteVirtualMemory.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_KiAttachProcess.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="MyDriverSys.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -42,6 +39,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtOpenThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="passtp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_KeStackAttachProcess.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_KeAttachProcess.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

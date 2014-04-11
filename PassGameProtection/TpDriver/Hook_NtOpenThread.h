@@ -8,7 +8,7 @@ ULONG g_NtOpenThreadJmpAddr;
 //根据特征码获得HOOK的起始地址
 ULONG g_MyHookedNtOpenThreadAddr;
 #pragma PAGECODE
-__declspec(naked) NTSTATUS __stdcall MyNtOpenThread_Win7()
+__declspec(naked) VOID __stdcall MyNtOpenThread_Win7()
 {
 	_asm
 	{

@@ -137,12 +137,14 @@
   <ItemGroup>
     <ClInclude Include="DriverHead.h" />
     <ClInclude Include="GlobalFunction.h" />
-    <ClInclude Include="Hook_KiAttachProcess.h" />
+    <ClInclude Include="Hook_KeStackAttachProcess.h" />
+    <ClInclude Include="Hook_KeAttachProcess.h" />
     <ClInclude Include="Hook_NtOpenProcess.h" />
     <ClInclude Include="Hook_NtOpenThread.h" />
     <ClInclude Include="Hook_NtReadVirtualMemory.h" />
     <ClInclude Include="Hook_NtWriteVirtualMemory.h" />
     <ClInclude Include="MyDriverSys.h" />
+    <ClInclude Include="passtp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

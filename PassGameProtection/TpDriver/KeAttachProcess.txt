@@ -1,0 +1,63 @@
+nt!KeAttachProcess:
+83e61fe9 8bff            mov     edi,edi
+83e61feb 55              push    ebp
+83e61fec 8bec            mov     ebp,esp
+83e61fee 51              push    ecx
+83e61fef 56              push    esi
+83e61ff0 648b3524010000  mov     esi,dword ptr fs:[124h]
+83e61ff7 8b5650          mov     edx,dword ptr [esi+50h]
+83e61ffa 3b5508          cmp     edx,dword ptr [ebp+8]
+83e61ffd 746f            je      nt!KeAttachProcess+0x85 (83e6206e)
+83e61fff 8a8e34010000    mov     cl,byte ptr [esi+134h]
+83e62005 b801000100      mov     eax,10001h
+83e6200a 84c9            test    cl,cl
+83e6200c 7565            jne     nt!KeAttachProcess+0x8a (83e62073)
+83e6200e 53              push    ebx
+83e6200f 57              push    edi
+83e62010 648b3d541a0000  mov     edi,dword ptr fs:[1A54h]
+83e62017 85f8            test    eax,edi
+83e62019 7558            jne     nt!KeAttachProcess+0x8a (83e62073)
+83e6201b ff157cb1e383    call    dword ptr [nt!_imp__KeRaiseIrqlToDpcLevel (83e3b17c)]
+83e62021 8845fc          mov     byte ptr [ebp-4],al
+83e62024 8d7e60          lea     edi,[esi+60h]
+83e62027 33db            xor     ebx,ebx
+83e62029 eb22            jmp     nt!KeAttachProcess+0x64 (83e6204d)
+83e6202b 43              inc     ebx
+83e6202c 851d7c4afa83    test    dword ptr [nt!HvlLongSpinCountMask (83fa4a7c)],ebx
+83e62032 7511            jne     nt!KeAttachProcess+0x5c (83e62045)
+83e62034 f605784afa8340  test    byte ptr [nt!HvlEnlightenments (83fa4a78)],40h
+83e6203b 7408            je      nt!KeAttachProcess+0x5c (83e62045)
+83e6203d 53              push    ebx
+83e6203e e8fc040b00      call    nt!HvlNotifyLongSpinWait (83f1253f)
+83e62043 eb02            jmp     nt!KeAttachProcess+0x5e (83e62047)
+83e62045 f390            pause
+83e62047 8b07            mov     eax,dword ptr [edi]
+83e62049 85c0            test    eax,eax
+83e6204b 75de            jne     nt!KeAttachProcess+0x42 (83e6202b)
+83e6204d 33c0            xor     eax,eax
+83e6204f 8bcf            mov     ecx,edi
+83e62051 40              inc     eax
+83e62052 8701            xchg    eax,dword ptr [ecx]
+83e62054 85c0            test    eax,eax
+83e62056 75d3            jne     nt!KeAttachProcess+0x42 (83e6202b)
+83e62058 8d8670010000    lea     eax,[esi+170h]
+83e6205e 50              push    eax
+83e6205f ff75fc          push    dword ptr [ebp-4]
+83e62062 8bc6            mov     eax,esi
+83e62064 ff7508          push    dword ptr [ebp+8]
+83e62067 e867b80500      call    nt!KiAttachProcess (83ebd8d3)
+83e6206c 5f              pop     edi
+83e6206d 5b              pop     ebx
+83e6206e 5e              pop     esi
+83e6206f c9              leave
+83e62070 c20400          ret     4
+83e62073 648b35541a0000  mov     esi,dword ptr fs:[1A54h]
+83e6207a 23f0            and     esi,eax
+83e6207c 56              push    esi
+83e6207d 0fb6c1          movzx   eax,cl
+83e62080 50              push    eax
+83e62081 52              push    edx
+83e62082 ff7508          push    dword ptr [ebp+8]
+83e62085 6a05            push    5
+83e62087 e8766e0b00      call    nt!KeBugCheckEx (83f18f02)
+83e6208c cc              int     3

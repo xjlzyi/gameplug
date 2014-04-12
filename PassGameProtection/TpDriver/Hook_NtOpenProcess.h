@@ -52,33 +52,34 @@ VOID HookNtOpenProcess_Win7()
 		(char)0xff, (char)0xb5, (char)0x10, 
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
 	};
+	__asm int 3;
 	//特征码长度
 	SIZE_T nLen = sizeof(pCode);
 	//获取原生PsOpenProcess地址
 	ULONG uOriginPsOpenProcessAddr = GetServiceOldAddr(L"PsRevertThreadToSelf") + 0x6bb;
-	//KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
+	KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
 	//获取原生ObOpenObjectByPointer地址
 	g_OriginPointAddr = GetServiceOldAddr(L"ObOpenObjectByPointer");
 	//根据特征码获得HOOK的起始地址
 	g_MyHookedNtOpenProcessAddr = SearchCode(uOriginPsOpenProcessAddr, pCode, nLen) - nLen;
-	//KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenProcessAddr));
+	KdPrint(("HOOK的起始地址:%x\n",g_MyHookedNtOpenProcessAddr));
 	//计算出自定义InLine Hook的跳转地址
 	g_NtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen + 4;
-	//KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
+	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenProcessJmpAddr));
 	//计算出TP InLine Hook的跳转地址
 	g_TPHookedNtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen - 1;
-	//KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
+	KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
 	
-	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
-	WPON();
-	__asm
-	{
-		mov eax,g_MyHookedNtOpenProcessAddr
-		mov byte ptr [eax],0xE9
-		mov ebx,nJmpAddr	
-		mov dword ptr [eax+1],ebx
-	}
-	WPOFF();
+//	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
+// 	WPON();
+// 	__asm
+// 	{
+// 		mov eax,g_MyHookedNtOpenProcessAddr
+// 		mov byte ptr [eax],0xE9
+// 		mov ebx,nJmpAddr	
+// 		mov dword ptr [eax+1],ebx
+// 	}
+// 	WPOFF();
 }
 
 #pragma PAGECODE
@@ -92,9 +93,9 @@ VOID UnHookNtOpenProcess_Win7()
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
 	};
 
-	WPON();
-	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
-	WPOFF();
+// 	WPON();
+// 	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
+// 	WPOFF();
 }
 
 #endif

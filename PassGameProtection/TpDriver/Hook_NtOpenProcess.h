@@ -40,9 +40,9 @@ VOID HookNtOpenProcess_Win7()
 // 	84019a04 e863440600      call    nt!PsRevertThreadToSelf+0x6bb (8407de6c)
 
 //	PsOpenProcess-------------------------------------------------------------
-// 	8407e08d ffb50cffffff    push    dword ptr [ebp-0F4h]
-// 	8407e093 ffb510ffffff    push    dword ptr [ebp-0F0h]
-//	8407e099 e8c655fdff      call    nt!ObOpenObjectByPointer (84053664)-----HOOK的位置
+// 	8408a08d ffb50cffffff    push    dword ptr [ebp-0F4h]
+// 	8408a093 ffb510ffffff    push    dword ptr [ebp-0F0h]
+// 	8408a099 e8c655fdff      call    nt!ObOpenObjectByPointer (8405f664) (84053664)-----HOOK的位置
 
 	//特征码
 	char pCode[] = 
@@ -51,10 +51,10 @@ VOID HookNtOpenProcess_Win7()
 		(char)0xff, (char)0xff, (char)0xff, 
 		(char)0xff, (char)0xb5, (char)0x10, 
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
-	};
-	__asm int 3;
+	};	
 	//特征码长度
 	SIZE_T nLen = sizeof(pCode);
+
 	//获取原生PsOpenProcess地址
 	ULONG uOriginPsOpenProcessAddr = GetServiceOldAddr(L"PsRevertThreadToSelf") + 0x6bb;
 	KdPrint(("PsOpenProcess地址:%x\n",uOriginPsOpenProcessAddr));
@@ -70,16 +70,16 @@ VOID HookNtOpenProcess_Win7()
 	g_TPHookedNtOpenProcessJmpAddr = g_MyHookedNtOpenProcessAddr + nLen - 1;
 	KdPrint(("TP InLine Hook的跳转地址:%x\n",g_TPHookedNtOpenProcessJmpAddr));
 	
-//	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
-// 	WPON();
-// 	__asm
-// 	{
-// 		mov eax,g_MyHookedNtOpenProcessAddr
-// 		mov byte ptr [eax],0xE9
-// 		mov ebx,nJmpAddr	
-// 		mov dword ptr [eax+1],ebx
-// 	}
-// 	WPOFF();
+	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
+	WPON();
+	__asm
+	{
+		mov eax,g_MyHookedNtOpenProcessAddr
+		mov byte ptr [eax],0xE9
+		mov ebx,nJmpAddr	
+		mov dword ptr [eax+1],ebx
+	}
+	WPOFF();
 }
 
 #pragma PAGECODE
@@ -93,9 +93,9 @@ VOID UnHookNtOpenProcess_Win7()
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
 	};
 
-// 	WPON();
-// 	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
-// 	WPOFF();
+	WPON();
+	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
+	WPOFF();
 }
 
 #endif

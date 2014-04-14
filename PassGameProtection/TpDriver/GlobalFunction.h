@@ -69,4 +69,24 @@ bool CheckProcessName(char* szName)
 	return false;
 }
 
+//获取CALL后面的地址--有时候并不适用
+ULONG GetCallAddr(ULONG nCallAddr)
+{
+	return (*((ULONG*)nCallAddr) + nCallAddr + 4);
+}
+
+//HOOK Call的地址
+VOID CallHook(ULONG uFuncAddr, ULONG uCallAddr)
+{
+	ULONG nJmpAddr=uFuncAddr - uCallAddr - 4;
+	WPON();
+	__asm
+	{
+		mov eax,uCallAddr
+		mov ebx,nJmpAddr
+		mov dword ptr ds:[eax],ebx
+	}
+	WPOFF();
+}
+
 #endif

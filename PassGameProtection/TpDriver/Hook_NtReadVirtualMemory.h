@@ -28,17 +28,17 @@ __declspec(naked) VOID __stdcall MyNtReadVirtualMemory()
 #pragma PAGECODE
 VOID HookNtReadVirtualMemory()
 {
-// 	nt!NtReadVirtualMemory:  SSDT 399=0x63C---win7
+// 	nt!NtReadVirtualMemory:  SSDT 277=0x115*4=0x454---win7
 
 // 	mov eax, A040DF8C
 // 	jmp eax
 // 	call 8449CBA8
 
-// 	840a182c 6a18            push    18h
-// 	840a182e 68287ae983      push    offset nt! ?? ::FNODOBFM::`string'+0x3ea8 (83e97a28)
-// 	840a1833 e870e3e1ff      call    nt!_SEH_prolog4 (83ebfba8)
+// 	8407382c 6a18            push    18h
+// 	8407382e 68289ae683      push    offset nt! ?? ::FNODOBFM::`string'+0x3ea8 (83e69a28)
+// 	84073833 e870e3e1ff      call    nt!_SEH_prolog4 (83e91ba8)
 	//HOOK的起始地址
-	g_OriginNtReadVirtualMemoryAddr = (ULONG)KeServiceDescriptorTable->ServiceCounterTable+0x63C;
+	g_OriginNtReadVirtualMemoryAddr = *((ULONG*)((ULONG)KeServiceDescriptorTable->ServiceTableBase+0x454));
 	KdPrint(("NtReadVirtualMemory=%x\n",g_OriginNtReadVirtualMemoryAddr));
 	//NtRead第二个push的地址
 	g_NtReadPushAddr = *((ULONG*)(g_OriginNtReadVirtualMemoryAddr+3));
@@ -46,31 +46,31 @@ VOID HookNtReadVirtualMemory()
 	//跳转地址
 	g_MyHookNtReadVirtualMemoryAddr = g_OriginNtReadVirtualMemoryAddr + 7;
 	KdPrint(("NtReadVirtualMemory中Call的地址=%x\n",g_MyHookNtReadVirtualMemoryAddr));
-// 	WPON();
-// 	__asm
-// 	{
-// 		mov eax,KeServiceDescriptorTable
-// 		mov eax,[eax]
-// 		add eax,0x63C
-// 		lea ebx,MyNtReadVirtualMemory
-// 		mov [eax],ebx
-// 	}
-// 	WPOFF();
+	WPON();
+	__asm
+	{
+		mov eax,KeServiceDescriptorTable
+		mov eax,[eax]
+		add eax,0x454
+		lea ebx,MyNtReadVirtualMemory
+		mov [eax],ebx
+	}
+	WPOFF();
 }
 
 #pragma PAGECODE
 VOID UnHookNtReadVirtualMemory()
 {
-// 	WPON();
-// 	__asm
-// 	{
-// 		mov eax,KeServiceDescriptorTable
-// 		mov eax,[eax]
-// 		add eax,0x63C
-// 		mov ebx,g_OriginNtReadVirtualMemoryAddr
-// 		mov [eax],ebx
-// 	}
-// 	WPOFF();
+	WPON();
+	__asm
+	{
+		mov eax,KeServiceDescriptorTable
+		mov eax,[eax]
+		add eax,0x454
+		mov ebx,g_OriginNtReadVirtualMemoryAddr
+		mov [eax],ebx
+	}
+	WPOFF();
 }
 
 #endif

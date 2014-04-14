@@ -17,8 +17,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Debug|Win32.Build.0 = Debug|Win32
-		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Driver|Win32.ActiveCfg = Debug|Win32
-		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Driver|Win32.Build.0 = Debug|Win32
+		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Driver|Win32.ActiveCfg = Release|Win32
+		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Driver|Win32.Build.0 = Release|Win32
 		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Release|Win32.ActiveCfg = Release|Win32
 		{AF4F3FF8-22F7-48F6-9C2B-C8887B7EEB8B}.Release|Win32.Build.0 = Release|Win32
 		{23641FA9-30FA-4278-BC16-04A6643C6B78}.Debug|Win32.ActiveCfg = Debug|Win32

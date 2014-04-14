@@ -1,73 +1,101 @@
 nt!KeStackAttachProcess:
-83ed5db1 8bff            mov     edi,edi
-83ed5db3 55              push    ebp
-83ed5db4 8bec            mov     ebp,esp
-83ed5db6 51              push    ecx
-83ed5db7 53              push    ebx
-83ed5db8 56              push    esi
-83ed5db9 648b3524010000  mov     esi,dword ptr fs:[124h]
-83ed5dc0 648b0d541a0000  mov     ecx,dword ptr fs:[1A54h]
-83ed5dc7 b801000100      mov     eax,10001h
-83ed5dcc 57              push    edi
-83ed5dcd 85c8            test    eax,ecx
-83ed5dcf 7420            je      nt!KeStackAttachProcess+0x3f (83ed5df1)
-83ed5dd1 648b0d541a0000  mov     ecx,dword ptr fs:[1A54h]
-83ed5dd8 23c8            and     ecx,eax
-83ed5dda 0fb68634010000  movzx   eax,byte ptr [esi+134h]
-83ed5de1 51              push    ecx
-83ed5de2 50              push    eax
-83ed5de3 ff7650          push    dword ptr [esi+50h]
-83ed5de6 ff7508          push    dword ptr [ebp+8]
-83ed5de9 6a05            push    5
-83ed5deb e812310400      call    nt!KeBugCheckEx (83f18f02)
-83ed5df0 cc              int     3
-83ed5df1 8b4508          mov     eax,dword ptr [ebp+8]
-83ed5df4 394650          cmp     dword ptr [esi+50h],eax
-83ed5df7 750c            jne     nt!KeStackAttachProcess+0x53 (83ed5e05)
-83ed5df9 8b450c          mov     eax,dword ptr [ebp+0Ch]
-83ed5dfc c7401001000000  mov     dword ptr [eax+10h],1
-83ed5e03 eb72            jmp     nt!KeStackAttachProcess+0xc5 (83ed5e77)
-83ed5e05 ff157cb1e383    call    dword ptr [nt!_imp__KeRaiseIrqlToDpcLevel (83e3b17c)]
-83ed5e0b 8845fc          mov     byte ptr [ebp-4],al
-83ed5e0e 8d7e60          lea     edi,[esi+60h]
-83ed5e11 33db            xor     ebx,ebx
-83ed5e13 eb22            jmp     nt!KeStackAttachProcess+0x85 (83ed5e37)
-83ed5e15 43              inc     ebx
-83ed5e16 851d7c4afa83    test    dword ptr [nt!HvlLongSpinCountMask (83fa4a7c)],ebx
-83ed5e1c 7511            jne     nt!KeStackAttachProcess+0x7d (83ed5e2f)
-83ed5e1e f605784afa8340  test    byte ptr [nt!HvlEnlightenments (83fa4a78)],40h
-83ed5e25 7408            je      nt!KeStackAttachProcess+0x7d (83ed5e2f)
-83ed5e27 53              push    ebx
-83ed5e28 e812c70300      call    nt!HvlNotifyLongSpinWait (83f1253f)
-83ed5e2d eb02            jmp     nt!KeStackAttachProcess+0x7f (83ed5e31)
-83ed5e2f f390            pause
-83ed5e31 8b07            mov     eax,dword ptr [edi]
-83ed5e33 85c0            test    eax,eax
-83ed5e35 75de            jne     nt!KeStackAttachProcess+0x63 (83ed5e15)
-83ed5e37 33c0            xor     eax,eax
-83ed5e39 8bcf            mov     ecx,edi
-83ed5e3b 40              inc     eax
-83ed5e3c 8701            xchg    eax,dword ptr [ecx]
-83ed5e3e 85c0            test    eax,eax
-83ed5e40 75d3            jne     nt!KeStackAttachProcess+0x63 (83ed5e15)
-83ed5e42 388634010000    cmp     byte ptr [esi+134h],al
-83ed5e48 7412            je      nt!KeStackAttachProcess+0xaa (83ed5e5c)
-83ed5e4a ff750c          push    dword ptr [ebp+0Ch]
-83ed5e4d 8bc6            mov     eax,esi
-83ed5e4f ff75fc          push    dword ptr [ebp-4]
-83ed5e52 ff7508          push    dword ptr [ebp+8]
-83ed5e55 e8797afeff      call    nt!KiAttachProcess (83ebd8d3)
-83ed5e5a eb1b            jmp     nt!KeStackAttachProcess+0xc5 (83ed5e77)
-83ed5e5c 8d8670010000    lea     eax,[esi+170h]
-83ed5e62 50              push    eax
-83ed5e63 ff75fc          push    dword ptr [ebp-4]
-83ed5e66 8bc6            mov     eax,esi
-83ed5e68 ff7508          push    dword ptr [ebp+8]
-83ed5e6b e8637afeff      call    nt!KiAttachProcess (83ebd8d3)
-83ed5e70 8b450c          mov     eax,dword ptr [ebp+0Ch]
-83ed5e73 83601000        and     dword ptr [eax+10h],0
-83ed5e77 5f              pop     edi
-83ed5e78 5e              pop     esi
-83ed5e79 5b              pop     ebx
-83ed5e7a c9              leave
-83ed5e7b c20800          ret     8
+83eb8db1 8bff            mov     edi,edi
+83eb8db3 55              push    ebp
+83eb8db4 8bec            mov     ebp,esp
+83eb8db6 51              push    ecx
+83eb8db7 53              push    ebx
+83eb8db8 56              push    esi
+83eb8db9 648b3524010000  mov     esi,dword ptr fs:[124h]
+83eb8dc0 648b0d541a0000  mov     ecx,dword ptr fs:[1A54h]
+83eb8dc7 b801000100      mov     eax,10001h
+83eb8dcc 57              push    edi
+83eb8dcd 85c8            test    eax,ecx
+83eb8dcf 7420            je      nt!KeStackAttachProcess+0x3f (83eb8df1)
+
+nt!KeStackAttachProcess+0x20:
+83eb8dd1 648b0d541a0000  mov     ecx,dword ptr fs:[1A54h]
+83eb8dd8 23c8            and     ecx,eax
+83eb8dda 0fb68634010000  movzx   eax,byte ptr [esi+134h]
+83eb8de1 51              push    ecx
+83eb8de2 50              push    eax
+83eb8de3 ff7650          push    dword ptr [esi+50h]
+83eb8de6 ff7508          push    dword ptr [ebp+8]
+83eb8de9 6a05            push    5
+83eb8deb e812310400      call    nt!KeBugCheckEx (83efbf02)
+83eb8df0 cc              int     3
+
+nt!KeStackAttachProcess+0x3f:
+83eb8df1 8b4508          mov     eax,dword ptr [ebp+8]
+83eb8df4 394650          cmp     dword ptr [esi+50h],eax
+83eb8df7 750c            jne     nt!KeStackAttachProcess+0x53 (83eb8e05)
+
+nt!KeStackAttachProcess+0x47:
+83eb8df9 8b450c          mov     eax,dword ptr [ebp+0Ch]
+83eb8dfc c7401001000000  mov     dword ptr [eax+10h],1
+83eb8e03 eb72            jmp     nt!KeStackAttachProcess+0xc5 (83eb8e77)
+
+nt!KeStackAttachProcess+0x53:
+83eb8e05 ff157ce1e183    call    dword ptr [nt!_imp__KeRaiseIrqlToDpcLevel (83e1e17c)]
+83eb8e0b 8845fc          mov     byte ptr [ebp-4],al
+83eb8e0e 8d7e60          lea     edi,[esi+60h]
+83eb8e11 33db            xor     ebx,ebx
+83eb8e13 eb22            jmp     nt!KeStackAttachProcess+0x85 (83eb8e37)
+
+nt!KeStackAttachProcess+0x63:
+83eb8e15 43              inc     ebx
+83eb8e16 851d7c7af883    test    dword ptr [nt!HvlLongSpinCountMask (83f87a7c)],ebx
+83eb8e1c 7511            jne     nt!KeStackAttachProcess+0x7d (83eb8e2f)
+
+nt!KeStackAttachProcess+0x6c:
+83eb8e1e f605787af88340  test    byte ptr [nt!HvlEnlightenments (83f87a78)],40h
+83eb8e25 7408            je      nt!KeStackAttachProcess+0x7d (83eb8e2f)
+
+nt!KeStackAttachProcess+0x75:
+83eb8e27 53              push    ebx
+83eb8e28 e8a67afeff      call    nt!KiAttachProcess (83ea08d3)
+83eb8e2d eb02            jmp     nt!KeStackAttachProcess+0x7f (83eb8e31)
+
+nt!KeStackAttachProcess+0x7d:
+83eb8e2f f390            pause
+
+nt!KeStackAttachProcess+0x7f:
+83eb8e31 8b07            mov     eax,dword ptr [edi]
+83eb8e33 85c0            test    eax,eax
+83eb8e35 75de            jne     nt!KeStackAttachProcess+0x63 (83eb8e15)
+
+nt!KeStackAttachProcess+0x85:
+83eb8e37 33c0            xor     eax,eax
+83eb8e39 8bcf            mov     ecx,edi
+83eb8e3b 40              inc     eax
+83eb8e3c 8701            xchg    eax,dword ptr [ecx]
+83eb8e3e 85c0            test    eax,eax
+83eb8e40 75d3            jne     nt!KeStackAttachProcess+0x63 (83eb8e15)
+
+nt!KeStackAttachProcess+0x90:
+83eb8e42 388634010000    cmp     byte ptr [esi+134h],al
+83eb8e48 7412            je      nt!KeStackAttachProcess+0xaa (83eb8e5c)
+
+nt!KeStackAttachProcess+0x98:
+83eb8e4a ff750c          push    dword ptr [ebp+0Ch]
+83eb8e4d 8bc6            mov     eax,esi
+83eb8e4f ff75fc          push    dword ptr [ebp-4]
+83eb8e52 ff7508          push    dword ptr [ebp+8]
+83eb8e55 e8797afeff      call    nt!KiAttachProcess (83ea08d3)
+83eb8e5a eb1b            jmp     nt!KeStackAttachProcess+0xc5 (83eb8e77)
+
+nt!KeStackAttachProcess+0xaa:
+83eb8e5c 8d8670010000    lea     eax,[esi+170h]
+83eb8e62 50              push    eax
+83eb8e63 ff75fc          push    dword ptr [ebp-4]
+83eb8e66 8bc6            mov     eax,esi
+83eb8e68 ff7508          push    dword ptr [ebp+8]
+83eb8e6b e8637afeff      call    nt!KiAttachProcess (83ea08d3)
+83eb8e70 8b450c          mov     eax,dword ptr [ebp+0Ch]
+83eb8e73 83601000        and     dword ptr [eax+10h],0
+
+nt!KeStackAttachProcess+0xc5:
+83eb8e77 5f              pop     edi
+83eb8e78 5e              pop     esi
+83eb8e79 5b              pop     ebx
+83eb8e7a c9              leave
+83eb8e7b c20800          ret     8

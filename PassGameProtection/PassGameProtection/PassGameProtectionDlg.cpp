@@ -6,6 +6,8 @@
 #include "PassGameProtection.h"
 #include "PassGameProtectionDlg.h"
 #include "afxdialogex.h"
+#include "winsvc.h"
+#include <winioctl.h> 
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -56,6 +58,8 @@ void CPassGameProtectionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SYSPATH, m_strSysPath);
 	DDX_Control(pDX, IDC_BTN_START, m_btnStartSys);
 	DDX_Control(pDX, IDC_BTN_STOP, m_btnStopSys);
+	DDX_Control(pDX, IDC_BTN_START_SERVICE, m_btnStartService);
+	DDX_Control(pDX, IDC_BTN_STOP_SERVICE, m_btnStopService);
 }
 
 BEGIN_MESSAGE_MAP(CPassGameProtectionDlg, CDialogEx)
@@ -65,6 +69,8 @@ BEGIN_MESSAGE_MAP(CPassGameProtectionDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_FIND_SYSPATH, &CPassGameProtectionDlg::OnBnClickedBtnFindSyspath)
 	ON_BN_CLICKED(IDC_BTN_START, &CPassGameProtectionDlg::OnBnClickedBtnStart)
 	ON_BN_CLICKED(IDC_BTN_STOP, &CPassGameProtectionDlg::OnBnClickedBtnStop)
+	ON_BN_CLICKED(IDC_BTN_START_SERVICE, &CPassGameProtectionDlg::OnBnClickedBtnStartService)
+	ON_BN_CLICKED(IDC_BTN_STOP_SERVICE, &CPassGameProtectionDlg::OnBnClickedBtnStopService)
 END_MESSAGE_MAP()
 
 
@@ -152,7 +158,6 @@ HCURSOR CPassGameProtectionDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
 //查找驱动文件
 void CPassGameProtectionDlg::OnBnClickedBtnFindSyspath()
 {
@@ -167,6 +172,7 @@ void CPassGameProtectionDlg::OnBnClickedBtnFindSyspath()
 	if (dlg.DoModal() == IDOK)
 	{
 		m_strSysPath = dlg.GetPathName();
+		m_strSysName = dlg.GetFileName();
 		UpdateData(FALSE);
 	}
 }
@@ -177,21 +183,173 @@ void CPassGameProtectionDlg::OnBnClickedBtnStart()
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
 	m_strSysPath = m_strSysPath.Trim();
-	if (!m_strSysPath.IsEmpty())
+	if (!m_strSysPath.IsEmpty() && LoadDriver())
 	{
 		//改变按钮状态
 		m_btnStartSys.EnableWindow(FALSE);
+		m_btnStartService.EnableWindow(TRUE);
+		m_btnStopService.EnableWindow(FALSE);
 		m_btnStopSys.EnableWindow(TRUE);
 	}
+	else
+	{
+		MessageBox("请选择正确的驱动程序","警告",MB_OK|MB_ICONHAND);
+	}
+}
+
+//加载驱动
+BOOL CPassGameProtectionDlg::LoadDriver()
+{
+	BOOL bRet = FALSE;
+	SC_HANDLE hServiceDDK = NULL; //驱动程序的服务句柄
+	SC_HANDLE hServiceMgr = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);//服务管理器句柄
+	if (hServiceMgr == NULL)
+	{
+		return bRet;
+	}
+	hServiceDDK=CreateService(
+		hServiceMgr,//管理器句柄
+		m_strSysName.LockBuffer(),	//驱动在注册表中的名字
+		m_strSysName.LockBuffer(),	//注册表驱动程序的 DisplayName值
+		SERVICE_ALL_ACCESS,			//加载驱动的访问权限
+		SERVICE_KERNEL_DRIVER,		//表示加载的是驱动
+		SERVICE_DEMAND_START,		// 注册表驱动程序的 Start 值  
+		SERVICE_ERROR_IGNORE,		// 注册表驱动程序的 ErrorControl 值  
+		m_strSysPath.LockBuffer(),	// 注册表驱动程序的 ImagePath 值  
+		NULL,	//要开启服务的 用户组
+		NULL,	//输出验证标签
+		NULL,	//所依赖的服务的名称
+		NULL,   //用户账户名称
+		NULL);
+	if (hServiceDDK == NULL)
+	{
+		//如果创建失败,则直接打开
+		hServiceDDK = OpenService(hServiceMgr, m_strSysName.LockBuffer(), SERVICE_ALL_ACCESS);
+		if (hServiceDDK == NULL)
+		{
+			CloseServiceHandle(hServiceMgr);
+			return bRet;
+		}
+	}
+	if (StartService(hServiceDDK,NULL,NULL) != NULL)
+	{
+		bRet = TRUE;
+	}
+
+	CloseServiceHandle(hServiceDDK);
+	CloseServiceHandle(hServiceMgr);
+	return bRet;
 }
 
 //停止驱动
 void CPassGameProtectionDlg::OnBnClickedBtnStop()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
-
+	UnLoadDriver();
+	CloseHandle(hDevice);
 	//改变按钮状态
 	m_btnStartSys.EnableWindow(TRUE);
+	m_btnStartService.EnableWindow(FALSE);
+	m_btnStopService.EnableWindow(FALSE);
 	m_btnStopSys.EnableWindow(FALSE);
+}
+
+//卸载驱动
+void CPassGameProtectionDlg::UnLoadDriver()
+{
+	SERVICE_STATUS SvrSta;
+	SC_HANDLE hServiceDDK = NULL; //驱动程序的服务句柄
+	SC_HANDLE hServiceMgr = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);	//服务管理器句柄
+	if (hServiceMgr == NULL)
+	{
+		return;
+	}
+	//打开所要关闭的驱动所对应的服务
+	hServiceDDK=OpenService(hServiceMgr,m_strSysName,SERVICE_ALL_ACCESS);
+	if (hServiceDDK==NULL)
+	{
+		return;
+	}
+	//停止服务
+	if (!ControlService(hServiceDDK,SERVICE_CONTROL_STOP,&SvrSta))
+	{
+		return;
+	}
+	//删除服务
+	if(!DeleteService(hServiceDDK))
+	{
+		return;
+	}
+	if (hServiceDDK!=NULL)
+	{
+		//关闭打开的驱动句柄
+		CloseServiceHandle(hServiceDDK);
+	}
+	if (hServiceMgr!=NULL)
+	{
+		//关闭服务管理器句柄
+		CloseServiceHandle(hServiceMgr);
+	}
+}
+
+//获取驱动句柄
+HANDLE CPassGameProtectionDlg::GetDevice()
+{
+	hDevice = CreateFile("\\\\.\\MyDriverLinkName",//\\??\\MyDriverLinkName指向文件名的指针 
+		GENERIC_READ|GENERIC_WRITE,	//访问模式（写/读） 
+		0,							//共享模式
+		NULL,						//指向安全属性的指针
+		OPEN_EXISTING,				//如何创建
+		FILE_ATTRIBUTE_NORMAL,		//文件属性
+		NULL);						//用于复制文件句柄 
+	if (hDevice == INVALID_HANDLE_VALUE)
+	{
+		printf("获取驱动句柄失败，Eorror code is :%d\n",GetLastError());
+		getchar();
+		return NULL;
+	}
+	return hDevice;
+}
+
+//向驱动文件发送命令
+BOOL CPassGameProtectionDlg::SendIRP(int code,LPVOID inBuffer,DWORD intBufferSize,LPVOID outBuffer,DWORD outBufferSize)
+{
+	DWORD lpBytesReturned;
+
+	return DeviceIoControl(hDevice,code,inBuffer,intBufferSize,outBuffer,outBufferSize,&lpBytesReturned,NULL);
+}
+
+//开启服务
+void CPassGameProtectionDlg::OnBnClickedBtnStartService()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!SendIRP(hook_code,NULL,0,NULL,0))
+	{
+		MessageBox("操作失败","Error!",MB_OK);
+		return;
+	}
+	m_btnStartSys.EnableWindow(FALSE);
+	m_btnStartService.EnableWindow(FALSE);
+	m_btnStopService.EnableWindow(TRUE);
+	m_btnStopSys.EnableWindow(TRUE);
+}
+
+//停止服务
+void CPassGameProtectionDlg::OnBnClickedBtnStopService()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (hDevice==INVALID_HANDLE_VALUE)
+	{
+		MessageBox( "连接驱动设备失败","Error",MB_OK|MB_ICONHAND);
+		return;
+	}
+	if (!SendIRP(unhook_code,NULL,0,NULL,0))
+	{
+		MessageBox("操作失败","Error",MB_OK);
+		return;
+	}
+	m_btnStartSys.EnableWindow(FALSE);
+	m_btnStartService.EnableWindow(TRUE);
+	m_btnStopService.EnableWindow(FALSE);
+	m_btnStopSys.EnableWindow(TRUE);
 }

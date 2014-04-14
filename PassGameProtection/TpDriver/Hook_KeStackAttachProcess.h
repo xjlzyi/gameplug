@@ -3,11 +3,9 @@
 
 #include "GlobalFunction.h"
 
-#pragma PAGECODE
-__declspec(naked) VOID __stdcall MyKeStackAttachProcess()
-{
-
-}
+ULONG g_uHookKeStackAttachProcessAddr1;
+ULONG g_uHookKeStackAttachProcessAddr2;
+ULONG g_uHookKeStackAttachProcessAddr3;
 
 #pragma PAGECODE
 VOID HookKeStackAttachProcess()
@@ -25,14 +23,34 @@ VOID HookKeStackAttachProcess()
 // 	83ed5e6b e8637afeff      call    nt!KiAttachProcess (83ebd8d3)
 // 	83ed5e70 8b450c          mov     eax,dword ptr [ebp+0C]
 
+	ULONG uKeStackAttachProcess = GetServiceOldAddr(L"KeStackAttachProcess");
+
+	char ch = (char)0xE8;
+	ULONG uCallAddr = SearchCode(uKeStackAttachProcess, &ch, 1);
+
+	uCallAddr = SearchCode(uCallAddr, &ch, 1);
+	g_uHookKeStackAttachProcessAddr1 = uCallAddr;
+	KdPrint(("第一个Call地址=%x\n",g_uHookKeStackAttachProcessAddr1));
+
+	uCallAddr = SearchCode(uCallAddr, &ch, 1);
+	g_uHookKeStackAttachProcessAddr2 = uCallAddr;
+	KdPrint(("第二个Call地址=%x\n",g_uHookKeStackAttachProcessAddr2));
+
+	uCallAddr = SearchCode(uCallAddr, &ch, 1);
+	g_uHookKeStackAttachProcessAddr3 = uCallAddr;
+	KdPrint(("第三个Call地址=%x\n",g_uHookKeStackAttachProcessAddr3));
+
+	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr1);
+	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr2);
+	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr3);
 }
-
-
 
 #pragma PAGECODE
 VOID UnHookKeStackAttachProcess()
 {
-
+	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr1);
+	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr2);
+	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr3);
 }
 
 #endif

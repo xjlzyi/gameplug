@@ -10,8 +10,16 @@
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
-	KdPrint(("开始测试----"));
+	KdPrint(("开始测试----\n"));
 	Hook();
+
+	//注册派遣函数
+	pDriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchRoutine_CONTROLE;
+	pDriverObject->MajorFunction[IRP_MJ_READ] = DispatchRoutine_CONTROLE;
+	pDriverObject->MajorFunction[IRP_MJ_WRITE] = DispatchRoutine_CONTROLE;	
+	pDriverObject->MajorFunction[IRP_MJ_CLOSE] = DispatchRoutine_CONTROLE;
+	pDriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchRoutine_CONTROLE;
+
 	CreateMyDevice(pDriverObject);
 	pDriverObject->DriverUnload=Driver_Unload;
 
@@ -20,10 +28,74 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 
 VOID Hook()
 {
+	HookKeAttachProcess();
+	HookKeStackAttachProcess();
 	HookNtOpenProcess_Win7();
 	HookNtOpenThread_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
+}
+
+#pragma PAGECODE
+NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp)
+{
+	ULONG info;
+	//得到当前栈指针
+	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(pIrp);
+	//区分IRP
+	ULONG mf = stack->MajorFunction;
+	switch (mf)
+	{
+	case IRP_MJ_DEVICE_CONTROL:
+		{
+			NTSTATUS status = STATUS_SUCCESS;
+			//得到IOCTL码
+			ULONG code = stack->Parameters.DeviceIoControl.IoControlCode;
+			switch (code)
+			{
+			case hook_code:
+				{
+					Hook();
+					//设置实际缓冲区大小
+					info = 4;
+				}				
+				break;
+			case unhook_code:
+				{
+					UnHook();
+					//设置实际缓冲区大小
+					info = 4;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		break;
+	case IRP_MJ_CREATE:
+		{
+			break;
+		}
+	case IRP_MJ_CLOSE:
+		{			
+			break;
+		}
+	case IRP_MJ_READ:
+		{
+			break;
+		}
+	case IRP_MJ_WRITE:
+		{
+			break;
+		}
+	default:
+		break;
+	}
+	pIrp->IoStatus.Information = info;
+	pIrp->IoStatus.Status = STATUS_SUCCESS;
+	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
+	KdPrint(("离开派遣函数\n"));
+	return STATUS_SUCCESS;
 }
 
 //创建设备
@@ -89,6 +161,8 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 
 VOID UnHook()
 {
+	UnHookKeAttachProcess();
+	UnHookKeStackAttachProcess();
 	UnHookNtOpenProcess_Win7();
 	UnHookNtOpenThread_Win7();
 	UnHookNtReadVirtualMemory();

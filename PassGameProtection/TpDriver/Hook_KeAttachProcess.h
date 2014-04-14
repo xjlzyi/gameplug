@@ -19,6 +19,7 @@ __declspec(naked) NTSTATUS MyKiAttachProcess()
 { 
 	if(CheckProcessName("DNF.exe")||CheckProcessName("TenSafe_1.exe"))
 	{
+		__asm int 3;
 		__asm
 		{
 			mov     edi,edi
@@ -45,9 +46,7 @@ __declspec(naked) NTSTATUS MyKiAttachProcess()
 			mov     byte ptr [esi+56h],0
 			cmp     ecx,eax
 			jne     KiAttachProcess52// nt!KiAttachProcess+0x52 (842908c5)
-			mov     dword ptr [esi+168h],eax
-			mov     dword ptr [esi+16Ch],edi
-			mov     byte ptr [esi+134h],1
+
 KiAttachProcess3f:
 			mov     dword ptr [esi+168h],eax
 			mov     dword ptr [esi+16Ch],edi
@@ -128,7 +127,7 @@ KiAttachProcesscb:
 			ret     0Ch
 		}
 	}
-
+	__asm int 3;
 	__asm jmp g_uKiAttachProcessAddr
 }
 
@@ -190,7 +189,7 @@ VOID HookKeAttachProcess()
 	char myway[6]={(char)0x8b,(char)0xc6,(char)0xff,(char)0x75,(char)0x08,(char)0xe8};
 	ULONG uCallAddr=SearchCode(GetServiceOldAddr(L"KeAttachProcess"),myway,6);
 	g_uHookKeAttachProcessAddr=uCallAddr;
-
+	//ERROR
 	CallHook((ULONG)MyKiAttachProcess, uCallAddr);
 
 	KdPrint(("nCallAddr=%x\n",uCallAddr));

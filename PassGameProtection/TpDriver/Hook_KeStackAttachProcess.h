@@ -40,17 +40,17 @@ VOID HookKeStackAttachProcess()
 	g_uHookKeStackAttachProcessAddr3 = uCallAddr;
 	KdPrint(("第三个Call地址=%x\n",g_uHookKeStackAttachProcessAddr3));
 
-	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr1);
+	//CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr1);
 	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr2);
-	CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr3);
+	//CallHook((ULONG)MyKiAttachProcess,g_uHookKeStackAttachProcessAddr3);
 }
 
 #pragma PAGECODE
 VOID UnHookKeStackAttachProcess()
 {
-	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr1);
-	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr2);
-	CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr3);
+	//CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr1);
+	//CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr2);
+	//CallHook(g_uKiAttachProcessAddr, g_uHookKeStackAttachProcessAddr3);
 }
 
 #endif

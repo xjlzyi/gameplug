@@ -27,13 +27,13 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 }
 
 VOID Hook()
-{
-	HookKeAttachProcess();
-	HookKeStackAttachProcess();
+{	
 	HookNtOpenProcess_Win7();
 	HookNtOpenThread_Win7();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
+	HookKeAttachProcess();
+	HookKeStackAttachProcess();	//--error
 }
 
 #pragma PAGECODE
@@ -55,14 +55,16 @@ NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp)
 			{
 			case hook_code:
 				{
-					Hook();
+					HookKeAttachProcess();
+					//HookKeStackAttachProcess();
 					//设置实际缓冲区大小
 					info = 4;
 				}				
 				break;
 			case unhook_code:
 				{
-					UnHook();
+					UnHookKeAttachProcess();
+					//UnHookKeStackAttachProcess();
 					//设置实际缓冲区大小
 					info = 4;
 				}
@@ -160,11 +162,11 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 }
 
 VOID UnHook()
-{
-	UnHookKeAttachProcess();
-	UnHookKeStackAttachProcess();
+{	
 	UnHookNtOpenProcess_Win7();
 	UnHookNtOpenThread_Win7();
 	UnHookNtReadVirtualMemory();
 	UnHookNtWriteVirtualMemory();
+	UnHookKeAttachProcess();
+	UnHookKeStackAttachProcess();
 }

@@ -62,7 +62,8 @@ bool CheckProcessName(char* szName)
 	char* szProessaName = (char*)PsGetProcessImageFileName(nEProcess);
 	//比较进程名
 	if(strcmp(szProessaName,szName)==0)
-	{		
+	{
+		KdPrint(("CheckProcessName ok"));
 		return true;
 	}
 

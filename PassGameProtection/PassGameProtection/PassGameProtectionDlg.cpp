@@ -185,16 +185,19 @@ void CPassGameProtectionDlg::OnBnClickedBtnStart()
 	m_strSysPath = m_strSysPath.Trim();
 	if (!m_strSysPath.IsEmpty() && LoadDriver())
 	{
-		//改变按钮状态
-		m_btnStartSys.EnableWindow(FALSE);
-		m_btnStartService.EnableWindow(TRUE);
-		m_btnStopService.EnableWindow(FALSE);
-		m_btnStopSys.EnableWindow(TRUE);
+		hDevice = GetDevice();
+		if (hDevice != INVALID_HANDLE_VALUE)
+		{
+			//改变按钮状态
+			m_btnStartSys.EnableWindow(FALSE);
+			m_btnStartService.EnableWindow(TRUE);
+			m_btnStopService.EnableWindow(FALSE);
+			m_btnStopSys.EnableWindow(TRUE);
+			return;
+		}		
 	}
-	else
-	{
-		MessageBox("请选择正确的驱动程序","警告",MB_OK|MB_ICONHAND);
-	}
+
+	MessageBox("请选择正确的驱动程序","警告",MB_OK|MB_ICONHAND);
 }
 
 //加载驱动
@@ -306,7 +309,7 @@ HANDLE CPassGameProtectionDlg::GetDevice()
 	{
 		printf("获取驱动句柄失败，Eorror code is :%d\n",GetLastError());
 		getchar();
-		return NULL;
+		return INVALID_HANDLE_VALUE;
 	}
 	return hDevice;
 }

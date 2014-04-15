@@ -3,6 +3,7 @@
 #include "Hook_NtOpenThread.h"
 #include "Hook_NtReadVirtualMemory.h"
 #include "Hook_NtWriteVirtualMemory.h"
+#include "Hook_NtProtectVirtualMemory.h"
 #include "Hook_KeAttachProcess.h"
 #include "Hook_KeStackAttachProcess.h"
 
@@ -30,6 +31,7 @@ VOID Hook()
 {	
 	HookNtOpenProcess_Win7();
 	HookNtOpenThread_Win7();
+	HookNtProtectVirtualMemory();
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
 	HookKeAttachProcess();
@@ -56,7 +58,7 @@ NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp)
 			case hook_code:
 				{
 					HookKeAttachProcess();
-					//HookKeStackAttachProcess();
+					HookKeStackAttachProcess();
 					//设置实际缓冲区大小
 					info = 4;
 				}				
@@ -64,7 +66,7 @@ NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp)
 			case unhook_code:
 				{
 					UnHookKeAttachProcess();
-					//UnHookKeStackAttachProcess();
+					UnHookKeStackAttachProcess();
 					//设置实际缓冲区大小
 					info = 4;
 				}
@@ -165,6 +167,7 @@ VOID UnHook()
 {	
 	UnHookNtOpenProcess_Win7();
 	UnHookNtOpenThread_Win7();
+	UnHookNtProtectVirtualMemory();
 	UnHookNtReadVirtualMemory();
 	UnHookNtWriteVirtualMemory();
 	UnHookKeAttachProcess();

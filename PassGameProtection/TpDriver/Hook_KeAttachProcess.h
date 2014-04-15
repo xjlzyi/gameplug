@@ -4,23 +4,60 @@
 #include "GlobalFunction.h"
 
 ULONG g_uHookKeAttachProcessAddr;
-
-ULONG g_uKiAttachProcessAddr;
-ULONG g_uKiMoveApcState;
-ULONG g_uKiInSwapSingleProcess;
-ULONG g_uHvlLongSpinCountMask;
-ULONG g_uHvlEnlightenments;
-ULONG g_uHvlNotifyLongSpinWait;
-ULONG g_uKiSwapProcess;
-ULONG g_uImp_KfLowerIrql;
+ULONG g_uRealKeAttachProcess;
+// ULONG g_uKiAttachProcessAddr;
+// ULONG g_uKiMoveApcState;
+// ULONG g_uKiInSwapSingleProcess;
+// ULONG g_uHvlLongSpinCountMask;
+// ULONG g_uHvlEnlightenments;
+// ULONG g_uHvlNotifyLongSpinWait;
+// ULONG g_uKiSwapProcess;
+// ULONG g_uImp_KfLowerIrql;
 
 #pragma PAGECODE
-__declspec(naked) NTSTATUS MyKiAttachProcess()
+__declspec(naked) NTSTATUS MyHookKeAttachProcess()
 {
 	__asm
 	{
-		ret 0x0c
+		mov    edi, edi
+		push   ebp
+		mov    ebp, esp
+		push   ecx
+		push   esi
+		jmp g_uHookKeAttachProcessAddr
 	}
+
+
+}
+
+#pragma PAGECODE
+VOID HookKeAttachProcess()
+{
+	ULONG uOriginKeAttachProcess = GetServiceOldAddr(L"KeAttachProcess");
+	KdPrint(("OriginKeAttachProcess=%x\n",uOriginKeAttachProcess));
+	g_uRealKeAttachProcess = uOriginKeAttachProcess;
+	KdPrint(("RealKeAttachProcess=%x\n",g_uRealKeAttachProcess));
+	g_uHookKeAttachProcessAddr = uOriginKeAttachProcess + 7;
+	KdPrint(("KeAttachProcess JmpAddr=%x\n",g_uHookKeAttachProcessAddr));
+	KIRQL Irql;
+	WPON();
+	Irql=KeRaiseIrqlToDpcLevel();
+	uOriginKeAttachProcess = (ULONG)MyHookKeAttachProcess;
+	KeLowerIrql(Irql);
+	WPOFF();
+}
+
+#pragma PAGECODE
+VOID UnHookKeAttachProcess()
+{
+	ULONG uOriginKeAttachProcess = GetServiceOldAddr(L"KeAttachProcess");
+	KIRQL Irql;
+	WPON();
+	Irql=KeRaiseIrqlToDpcLevel();
+	uOriginKeAttachProcess = g_uRealKeAttachProcess;
+	KeLowerIrql(Irql);
+	WPOFF();
+}
 
 // 	if(CheckProcessName("DNF.exe")||CheckProcessName("TenSafe_1.exe"))
 // 	{
@@ -131,76 +168,68 @@ __declspec(naked) NTSTATUS MyKiAttachProcess()
 // 			ret     0Ch
 // 		}
 // 	}
-	//__asm int 3;
-	//KdPrint(("g_uKiAttachProcessAddr=%x\n",g_uKiAttachProcessAddr));
-	//__asm jmp g_uKiAttachProcessAddr
-}
-
-#pragma PAGECODE
-VOID HookKeAttachProcess()
-{
-// 	83e62062 8bc6            mov     eax,esi
-// 	83e62064 ff7508          push    dword ptr [ebp+8]
-// 	83e62067 e867b80500      call    nt!KiAttachProcess (83ebd8d3)
-
-	char pCode[] = 
-	{
-		(char)0x8b, (char)0xc6,	(char)0xff, 
-		(char)0x75, (char)0x08, (char)0xe8
-	};
-	
-	ULONG uOriginKeAttachProcess = GetServiceOldAddr(L"KeAttachProcess");
-	ULONG uKiCallAddr = SearchCode(uOriginKeAttachProcess, pCode, sizeof(pCode));
-	KdPrint(("KiCallAddr=%x\n",uKiCallAddr));
-	g_uKiAttachProcessAddr= GetCallAddr(uKiCallAddr);
-	KdPrint(("KiAttachProcessAddr=%x\n",g_uKiAttachProcessAddr));
-
-	char code1[2]={(char)0x57,(char)0xe8};
-	ULONG addr=SearchCode(g_uKiAttachProcessAddr,code1,2);
-	g_uKiMoveApcState=GetCallAddr(addr);              //1
-	KdPrint(("KiMoveApcState1=%x\n",g_uKiMoveApcState));
-
-	char code2[2]={(char)0xc3,(char)0xe8};
-	addr=SearchCode(g_uKiAttachProcessAddr,code2,2);
-	g_uKiInSwapSingleProcess=GetCallAddr(addr);              //2
-	KdPrint(("KiInSwapSingleProcess1=%x\n",g_uKiInSwapSingleProcess));
-	
-	char code3[2]={(char)0x85,(char)0x05};
-	addr=SearchCode(g_uKiAttachProcessAddr,code3,2);
-	g_uHvlLongSpinCountMask=*((ULONG*)addr);              //3
-	KdPrint(("HvlLongSpinCountMask1=%x\n",g_uHvlLongSpinCountMask));
-	
-	char code4[2]={(char)0xf6,(char)0x05};
-	g_uHvlEnlightenments=*((ULONG*)(SearchCode(g_uKiAttachProcessAddr,code4,2)));        //4
-	KdPrint(("HvlEnlightenments1=%x\n",g_uHvlEnlightenments));
-
-	char code5[2]={(char)0x50,(char)0xe8};
-	addr=SearchCode(g_uKiAttachProcessAddr,code5,2);
-	g_uHvlNotifyLongSpinWait=GetCallAddr(addr);        //5
-	KdPrint(("HvlNotifyLongSpinWait1=%x\n",g_uHvlNotifyLongSpinWait));
-
-	char code6[2]={(char)0x53,(char)0xe8};
-	addr=SearchCode(g_uKiAttachProcessAddr,code6,2);
-	g_uKiSwapProcess=GetCallAddr(addr);        //6
-	KdPrint(("KiSwapProcess1=%x\n",g_uKiSwapProcess));
-	
-	char code7[2]={(char)0xff,(char)0x15};
-	addr=SearchCode(g_uKiAttachProcessAddr,code7,2);
-	g_uImp_KfLowerIrql=*((ULONG*)addr);        //7
-	KdPrint(("imp_KfLowerIrql1=%x\n",g_uImp_KfLowerIrql));
-
-	char myway[6]={(char)0x8b,(char)0xc6,(char)0xff,(char)0x75,(char)0x08,(char)0xe8};
-	ULONG uCallAddr=SearchCode(GetServiceOldAddr(L"KeAttachProcess"),myway,6);
-	g_uHookKeAttachProcessAddr=uCallAddr;
-	//ERROR
-	CallHook((ULONG)MyKiAttachProcess, uCallAddr);
-
-	KdPrint(("nCallAddr=%x\n",uCallAddr));
-}
-
-#pragma PAGECODE
-VOID UnHookKeAttachProcess()
-{
-	CallHook(g_uKiAttachProcessAddr, g_uHookKeAttachProcessAddr);
-}
+//__asm int 3;
+//KdPrint(("g_uKiAttachProcessAddr=%x\n",g_uKiAttachProcessAddr));
+//__asm jmp g_uKiAttachProcessAddr
+// #pragma PAGECODE
+// VOID HookKeAttachProcess()
+// {
+// // 	83e62062 8bc6            mov     eax,esi
+// // 	83e62064 ff7508          push    dword ptr [ebp+8]
+// // 	83e62067 e867b80500      call    nt!KiAttachProcess (83ebd8d3)
+// 
+// 	char pCode[] = 
+// 	{
+// 		(char)0x8b, (char)0xc6,	(char)0xff, 
+// 		(char)0x75, (char)0x08, (char)0xe8
+// 	};
+// 	
+// 	ULONG uOriginKeAttachProcess = GetServiceOldAddr(L"KeAttachProcess");
+// 	ULONG uKiCallAddr = SearchCode(uOriginKeAttachProcess, pCode, sizeof(pCode));
+// 	KdPrint(("KiCallAddr=%x\n",uKiCallAddr));
+// 	g_uKiAttachProcessAddr= GetCallAddr(uKiCallAddr);
+// 	KdPrint(("KiAttachProcessAddr=%x\n",g_uKiAttachProcessAddr));
+// 
+// 	char code1[2]={(char)0x57,(char)0xe8};
+// 	ULONG addr=SearchCode(g_uKiAttachProcessAddr,code1,2);
+// 	g_uKiMoveApcState=GetCallAddr(addr);              //1
+// 	KdPrint(("KiMoveApcState1=%x\n",g_uKiMoveApcState));
+// 
+// 	char code2[2]={(char)0xc3,(char)0xe8};
+// 	addr=SearchCode(g_uKiAttachProcessAddr,code2,2);
+// 	g_uKiInSwapSingleProcess=GetCallAddr(addr);              //2
+// 	KdPrint(("KiInSwapSingleProcess1=%x\n",g_uKiInSwapSingleProcess));
+// 	
+// 	char code3[2]={(char)0x85,(char)0x05};
+// 	addr=SearchCode(g_uKiAttachProcessAddr,code3,2);
+// 	g_uHvlLongSpinCountMask=*((ULONG*)addr);              //3
+// 	KdPrint(("HvlLongSpinCountMask1=%x\n",g_uHvlLongSpinCountMask));
+// 	
+// 	char code4[2]={(char)0xf6,(char)0x05};
+// 	g_uHvlEnlightenments=*((ULONG*)(SearchCode(g_uKiAttachProcessAddr,code4,2)));        //4
+// 	KdPrint(("HvlEnlightenments1=%x\n",g_uHvlEnlightenments));
+// 
+// 	char code5[2]={(char)0x50,(char)0xe8};
+// 	addr=SearchCode(g_uKiAttachProcessAddr,code5,2);
+// 	g_uHvlNotifyLongSpinWait=GetCallAddr(addr);        //5
+// 	KdPrint(("HvlNotifyLongSpinWait1=%x\n",g_uHvlNotifyLongSpinWait));
+// 
+// 	char code6[2]={(char)0x53,(char)0xe8};
+// 	addr=SearchCode(g_uKiAttachProcessAddr,code6,2);
+// 	g_uKiSwapProcess=GetCallAddr(addr);        //6
+// 	KdPrint(("KiSwapProcess1=%x\n",g_uKiSwapProcess));
+// 	
+// 	char code7[2]={(char)0xff,(char)0x15};
+// 	addr=SearchCode(g_uKiAttachProcessAddr,code7,2);
+// 	g_uImp_KfLowerIrql=*((ULONG*)addr);        //7
+// 	KdPrint(("imp_KfLowerIrql1=%x\n",g_uImp_KfLowerIrql));
+// 
+// 	char myway[6]={(char)0x8b,(char)0xc6,(char)0xff,(char)0x75,(char)0x08,(char)0xe8};
+// 	ULONG uCallAddr=SearchCode(GetServiceOldAddr(L"KeAttachProcess"),myway,6);
+// 	g_uHookKeAttachProcessAddr=uCallAddr;
+// 	//ERROR
+// 	CallHook((ULONG)MyKiAttachProcess, uCallAddr);
+// 
+// 	KdPrint(("nCallAddr=%x\n",uCallAddr));
+// }
 #endif 

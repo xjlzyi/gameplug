@@ -20,7 +20,6 @@ __declspec(naked) NTSTATUS MyHookKeStackAttachProcess()
 	}
 }
 
-
 #pragma PAGECODE
 VOID HookKeStackAttachProcess()
 {

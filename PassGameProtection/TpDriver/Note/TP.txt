@@ -1,0 +1,9 @@
+KDCOM.dll:kdreceivepacket
+kdsendpacket
+//////////////////////////////////
+--SSDT HOOK前面7个字节
+keattachProcess
+keStackAttachProcess
+NtProtectVitrtualMemory
+NtReadVirtualMemory
+NtWriteVirtualMemory

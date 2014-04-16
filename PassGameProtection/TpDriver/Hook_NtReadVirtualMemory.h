@@ -10,7 +10,7 @@ ULONG g_MyHookNtReadVirtualMemoryAddr;
 #pragma PAGECODE
 __declspec(naked) VOID __stdcall MyNtReadVirtualMemory()
 {
-// 	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe") || CheckProcessName("Client.exe"))
+// 	if (CheckProcessName("DNF.exe") || CheckProcessName("TenSafe_1.exe"))
 // 	{
 // 		__asm
 // 		{

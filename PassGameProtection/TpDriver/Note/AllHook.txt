@@ -1,0 +1,15 @@
+[PC Hunter Standard][Kernel Hook]: 32
+挂钩对象		挂钩位置		钩子类型		挂钩处当前值		挂钩处原始值
+KDCOM.dll:KdReceivePacket[ntkrnlpa.exe<=>0x844381C8]		[0x80BAA300]->[0xB1E1486A]		Iat		6A 48 E1 B1		00 A3 BA 80
+[*]KDCOM.dll:KdSendPacket[ntkrnlpa.exe<=>0x844381CC]		[0x80BAA57C]->[0xB1E1485C]		Iat		5C 48 E1 B1		7C A5 BA 80
+[*]len(7) KeAttachProcess[ntkrnlpa.exe]		[0x8445EFE9]->[0x6945711C]		Inline		B8 1C 01 E2 B1 FF E0		8B FF 55 8B EC 51 56
+[*]len(7) KeStackAttachProcess[ntkrnlpa.exe]		[0x844D2DB1]->[0x6945722C]		Inline		B8 2C 02 E2 B1 FF E0		8B FF 55 8B EC 51 53
+[*]len(7) NtProtectVirtualMemory[ntkrnlpa.exe]		[0x8467B403]->[0x69457340]		Inline		B8 40 03 E2 B1 FF E0		6A 38 68 48 0A 49 84
+[*]len(7) NtReadVirtualMemory[ntkrnlpa.exe]		[0x8469882C]->[0x69456F8C]		Inline		B8 8C FF E1 B1 FF E0		6A 18 68 28 EA 48 84
+[*]len(7) NtWriteVirtualMemory[ntkrnlpa.exe]		[0x8469871C]->[0x69457056]		Inline		B8 56 00 E2 B1 FF E0		6A 18 68 00 EA 48 84
+
+
+[*]len(4) [ntkrnlpa.exe]		[0x84696D1A]->[0xB1E2045C][->0x844F7F60==>C:\Windows\system32\ntkrnlpa.exe]		Inline		3E 97 78 2D		46 D9 FE FF
+[*]len(4) [ntkrnlpa.exe]		[0x846AF09A]->[0xB1E14F78][->0x844C1B60==>C:\Windows\system32\ntkrnlpa.exe]		Inline		DA 5E 76 2D		C6 55 FD FF
+
+

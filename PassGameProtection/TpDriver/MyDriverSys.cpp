@@ -6,12 +6,14 @@
 #include "Hook_NtProtectVirtualMemory.h"
 #include "Hook_KeAttachProcess.h"
 #include "Hook_KeStackAttachProcess.h"
+#include "Hook_KdDisableDebug.h"
 
 
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
 	KdPrint(("¿ªÊ¼²âÊÔ----\n"));
+	MoveVariable_Win7();
 	Hook();
 
 	//×¢²áÅÉÇ²º¯Êý

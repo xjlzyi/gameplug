@@ -3,7 +3,7 @@
 
 #include "DriverHead.h"
 
-VOID WPON()
+VOID DisableWP()
 {
 	//去除保护
 	_asm
@@ -15,7 +15,7 @@ VOID WPON()
 	}
 }
 
-VOID WPOFF()
+VOID EnableWP()
 {
 	//还原保护
 	__asm
@@ -80,14 +80,14 @@ ULONG GetCallAddr(ULONG nCallAddr)
 VOID CallHook(ULONG uFuncAddr, ULONG uCallAddr)
 {
 	ULONG nJmpAddr=uFuncAddr - uCallAddr - 4;
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,uCallAddr
 		mov ebx,nJmpAddr
 		mov dword ptr ds:[eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #endif

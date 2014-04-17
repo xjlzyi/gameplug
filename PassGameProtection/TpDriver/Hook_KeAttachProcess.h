@@ -39,24 +39,23 @@ VOID HookKeAttachProcess()
 	KdPrint(("RealKeAttachProcess=%x\n",g_uRealKeAttachProcess));
 	g_uHookKeAttachProcessAddr = uOriginKeAttachProcess + 7;
 	KdPrint(("KeAttachProcess JmpAddr=%x\n",g_uHookKeAttachProcessAddr));
-	KIRQL Irql;
-	WPON();
-	Irql=KeRaiseIrqlToDpcLevel();
+	
+	DisableWP();
+	KIRQL Irql=KeRaiseIrqlToDpcLevel();
 	uOriginKeAttachProcess = (ULONG)MyHookKeAttachProcess;
 	KeLowerIrql(Irql);
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
 VOID UnHookKeAttachProcess()
 {
 	ULONG uOriginKeAttachProcess = GetServiceOldAddr(L"KeAttachProcess");
-	KIRQL Irql;
-	WPON();
-	Irql=KeRaiseIrqlToDpcLevel();
+	DisableWP();
+	KIRQL Irql=KeRaiseIrqlToDpcLevel();
 	uOriginKeAttachProcess = g_uRealKeAttachProcess;
 	KeLowerIrql(Irql);
-	WPOFF();
+	EnableWP();
 }
 
 // 	if(CheckProcessName("DNF.exe")||CheckProcessName("TenSafe_1.exe"))

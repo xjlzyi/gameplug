@@ -53,5 +53,8 @@
     <ClInclude Include="Hook_NtProtectVirtualMemory.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Hook_KdDisableDebug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

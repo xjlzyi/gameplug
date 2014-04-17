@@ -71,7 +71,7 @@ VOID HookNtOpenProcess_Win7()
 	KdPrint(("TP InLine HookµÄÌø×ªµØÖ·:%x\n",g_TPHookedNtOpenProcessJmpAddr));
 	
 	int nJmpAddr = (int)MyNtOpenProcess_Win7 - g_MyHookedNtOpenProcessAddr - 5;
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,g_MyHookedNtOpenProcessAddr
@@ -79,7 +79,7 @@ VOID HookNtOpenProcess_Win7()
 		mov ebx,nJmpAddr	
 		mov dword ptr [eax+1],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
@@ -93,9 +93,9 @@ VOID UnHookNtOpenProcess_Win7()
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
 	};
 
-	WPON();
+	DisableWP();
 	RtlMoveMemory((char*)g_MyHookedNtOpenProcessAddr, pCode, 5);
-	WPOFF();
+	EnableWP();
 }
 
 #endif

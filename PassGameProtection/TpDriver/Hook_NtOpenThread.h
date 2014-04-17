@@ -46,7 +46,7 @@ VOID HookNtOpenThread_Win7()
 	KdPrint(("自定义InLine Hook的跳转地址:%x\n",g_NtOpenThreadJmpAddr));
 
 	int nJmpAddr = (int)MyNtOpenThread_Win7 - g_MyHookedNtOpenThreadAddr - 5;
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,g_MyHookedNtOpenThreadAddr
@@ -54,7 +54,7 @@ VOID HookNtOpenThread_Win7()
 		mov ebx,nJmpAddr	
 		mov dword ptr [eax+1],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
@@ -67,9 +67,9 @@ VOID UnHookNtOpenThread_Win7()
 		(char)0xff, (char)0xb5, (char)0x14, 
 		(char)0xff, (char)0xff, (char)0xff,	(char)0xe8
 	};
-	WPON();
+	DisableWP();
 	RtlMoveMemory((char*)g_MyHookedNtOpenThreadAddr, pCode, 5);
-	WPOFF();
+	EnableWP();
 }
 
 #endif

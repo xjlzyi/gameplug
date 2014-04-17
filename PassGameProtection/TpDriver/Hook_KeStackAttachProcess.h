@@ -29,12 +29,12 @@ VOID HookKeStackAttachProcess()
 	KdPrint(("g_uRealStackKeAttachProcess=%x\n",g_uRealKeStackAttachProcess));
 	g_uHookKeStackAttachProcessAddr = uOriginStackKeAttachProcess + 7;
 	KdPrint(("StackKeAttachProcess JmpAddr=%x\n",g_uHookKeStackAttachProcessAddr));
-	KIRQL Irql;
-	WPON();
-	Irql=KeRaiseIrqlToDpcLevel();
+
+	DisableWP();
+	KIRQL Irql=KeRaiseIrqlToDpcLevel();
 	uOriginStackKeAttachProcess = (ULONG)MyHookKeStackAttachProcess;
 	KeLowerIrql(Irql);
-	WPOFF();
+	EnableWP();
 // 	83ed5e4f ff75fc          push    dword ptr [ebp-4]
 // 	83ed5e52 ff7508          push    dword ptr [ebp+8]
 // 	83ed5e55 e8797afeff      call    nt!KiAttachProcess (83ebd8d3)
@@ -71,12 +71,12 @@ VOID HookKeStackAttachProcess()
 VOID UnHookKeStackAttachProcess()
 {	
 	ULONG uOriginKeStackAttachProcess = GetServiceOldAddr(L"KeStackAttachProcess");
-	KIRQL Irql;
-	WPON();
-	Irql=KeRaiseIrqlToDpcLevel();
+
+	DisableWP();
+	KIRQL Irql=KeRaiseIrqlToDpcLevel();
 	uOriginKeStackAttachProcess = g_uRealKeStackAttachProcess;
 	KeLowerIrql(Irql);
-	WPOFF();
+	EnableWP();
 }
 
 #endif

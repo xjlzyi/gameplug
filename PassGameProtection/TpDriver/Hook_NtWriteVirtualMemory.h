@@ -44,7 +44,7 @@ VOID HookNtWriteVirtualMemory()
 	KdPrint(("NtWriteVirtualMemory中Call的地址=%x\n",g_NtWriteVirtualMemory));
 	g_NtWritePush = *((ULONG*)(g_OriginNtWriteVirtualMemoryAddr+3));
 	KdPrint(("NtWrite第二个push的地址=%x\n",g_NtWritePush));
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -53,13 +53,13 @@ VOID HookNtWriteVirtualMemory()
 		lea ebx,MyNtWriteVirtualMemory
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
 VOID UnHookNtWriteVirtualMemory()
 {
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -68,6 +68,6 @@ VOID UnHookNtWriteVirtualMemory()
 		mov ebx,g_OriginNtWriteVirtualMemoryAddr
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 #endif

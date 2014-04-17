@@ -1,2 +1,4 @@
 #需要忽略的文件
 Driver
+sys
+objchk_win7_x86

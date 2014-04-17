@@ -36,7 +36,7 @@ VOID HookNtProtectVirtualMemory()
 	//跳转地址
 	g_MyHookNtProtectVirtualMemoryAddr = g_OriginNtProtectVirtualMemoryAddr + 7;
 	KdPrint(("NtReadVirtualMemory中Call的地址=%x\n",g_MyHookNtProtectVirtualMemoryAddr));
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -45,13 +45,13 @@ VOID HookNtProtectVirtualMemory()
 		lea ebx,MyNtProtectVirtualMemory
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
 VOID UnHookNtProtectVirtualMemory()
 {
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -60,7 +60,7 @@ VOID UnHookNtProtectVirtualMemory()
 		mov ebx,g_OriginNtProtectVirtualMemoryAddr
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #endif

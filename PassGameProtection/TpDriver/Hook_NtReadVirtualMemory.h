@@ -46,7 +46,7 @@ VOID HookNtReadVirtualMemory()
 	//跳转地址
 	g_MyHookNtReadVirtualMemoryAddr = g_OriginNtReadVirtualMemoryAddr + 7;
 	KdPrint(("NtReadVirtualMemory中Call的地址=%x\n",g_MyHookNtReadVirtualMemoryAddr));
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -55,13 +55,13 @@ VOID HookNtReadVirtualMemory()
 		lea ebx,MyNtReadVirtualMemory
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #pragma PAGECODE
 VOID UnHookNtReadVirtualMemory()
 {
-	WPON();
+	DisableWP();
 	__asm
 	{
 		mov eax,KeServiceDescriptorTable
@@ -70,7 +70,7 @@ VOID UnHookNtReadVirtualMemory()
 		mov ebx,g_OriginNtReadVirtualMemoryAddr
 		mov [eax],ebx
 	}
-	WPOFF();
+	EnableWP();
 }
 
 #endif

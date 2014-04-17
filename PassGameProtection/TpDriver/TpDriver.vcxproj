@@ -114,8 +114,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>
-      </GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)$(TargetName).sys</OutputFile>
@@ -137,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="DriverHead.h" />
     <ClInclude Include="GlobalFunction.h" />
+    <ClInclude Include="Hook_KdDisableDebug.h" />
     <ClInclude Include="Hook_KeStackAttachProcess.h" />
     <ClInclude Include="Hook_KeAttachProcess.h" />
     <ClInclude Include="Hook_NtOpenProcess.h" />

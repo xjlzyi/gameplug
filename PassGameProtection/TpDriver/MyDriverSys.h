@@ -8,4 +8,6 @@ NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp);
 VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject);
 VOID Hook();
 VOID UnHook();
+VOID HookDebug();
+VOID UnHookDebug();
 #endif

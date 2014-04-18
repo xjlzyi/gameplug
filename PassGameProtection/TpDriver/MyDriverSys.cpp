@@ -6,15 +6,18 @@
 #include "Hook_NtProtectVirtualMemory.h"
 #include "Hook_KeAttachProcess.h"
 #include "Hook_KeStackAttachProcess.h"
-#include "Hook_KdDisableDebug.h"
+#include "WindbgDebug/Hook_KdDisableDebug.h"
+#include "WindbgDebug/Hook_KdDebuggerEnabled.h"
+#include "WindbgDebug/Hook_KiDebugRoutine.h"
 
 
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
 	KdPrint(("¿ªÊ¼²âÊÔ----\n"));
-	MoveVariable_Win7();
-	Hook();
+
+	HookDebug();
+	//Hook();
 
 	//×¢²áÅÉÇ²º¯Êý
 	pDriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchRoutine_CONTROLE;
@@ -27,6 +30,12 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 	pDriverObject->DriverUnload=Driver_Unload;
 
 	return STATUS_SUCCESS;
+}
+
+VOID HookDebug()
+{
+	MoveVariable_Win7();
+	MoveKiDebugRutine_Win7();
 }
 
 VOID Hook()
@@ -153,8 +162,9 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 {
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
-
-	UnHook();	
+	
+	UnHookDebug();
+	//UnHook();	
 	//É¾³ý·ûºÅÁ´½Ó
 	RtlInitUnicodeString(&symName,L"\\??\\MyDriverLinkName");
 	IoDeleteSymbolicLink(&symName);
@@ -163,6 +173,12 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	IoDeleteDevice(pDev);
 
 	KdPrint(("Çý¶¯³É¹¦±»Ð¶ÔØ...OK-----------\n"));
+}
+
+VOID UnHookDebug()
+{
+	ResetVariable_Win7();
+	ResetKiDebugRutine_Win7();
 }
 
 VOID UnHook()

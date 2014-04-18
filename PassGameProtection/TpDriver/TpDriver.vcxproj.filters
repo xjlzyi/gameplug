@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\WindbgDebug">
+      <UniqueIdentifier>{17161715-9477-44f7-b836-505a61a2830a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\HookDriver">
+      <UniqueIdentifier>{a2cad1cd-f2eb-4b7b-b821-8bc2b27c7e68}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyDriverSys.cpp">
@@ -23,38 +29,44 @@
     <ClInclude Include="DriverHead.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_NtOpenProcess.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook_NtReadVirtualMemory.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook_NtWriteVirtualMemory.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="MyDriverSys.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GlobalFunction.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_NtOpenThread.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="passtp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_KeStackAttachProcess.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="WindbgDebug\Hook_KdDebuggerEnabled.h">
+      <Filter>头文件\WindbgDebug</Filter>
+    </ClInclude>
+    <ClInclude Include="WindbgDebug\Hook_KiDebugRoutine.h">
+      <Filter>头文件\WindbgDebug</Filter>
+    </ClInclude>
+    <ClInclude Include="WindbgDebug\Hook_KdDisableDebug.h">
+      <Filter>头文件\WindbgDebug</Filter>
     </ClInclude>
     <ClInclude Include="Hook_KeAttachProcess.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\HookDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_KeStackAttachProcess.h">
+      <Filter>头文件\HookDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_NtOpenProcess.h">
+      <Filter>头文件\HookDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_NtOpenThread.h">
+      <Filter>头文件\HookDriver</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtProtectVirtualMemory.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\HookDriver</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_KdDisableDebug.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="Hook_NtReadVirtualMemory.h">
+      <Filter>头文件\HookDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_NtWriteVirtualMemory.h">
+      <Filter>头文件\HookDriver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

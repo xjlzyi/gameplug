@@ -27,4 +27,10 @@ typedef struct _ServiceDescriptorTable
 }*PServiceDescriptorTable; 
 extern "C" extern PServiceDescriptorTable KeServiceDescriptorTable;
 
+typedef struct _OldVariable
+{
+	ULONG uAddr;
+	ULONG uVariableAddr;
+}HookVariableAddr;
+
 #endif

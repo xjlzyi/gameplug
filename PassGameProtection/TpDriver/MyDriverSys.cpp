@@ -6,6 +6,8 @@
 #include "Hook_NtProtectVirtualMemory.h"
 #include "Hook_KeAttachProcess.h"
 #include "Hook_KeStackAttachProcess.h"
+#include "Hook_DbgkpSetProcessDebugObject.h"
+#include "Hook_DbgkpQueueMessage.h"
 #include "WindbgDebug/Hook_KdDisableDebug.h"
 #include "WindbgDebug/Hook_KdDebuggerEnabled.h"
 #include "WindbgDebug/Hook_KiDebugRoutine.h"
@@ -16,8 +18,8 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
 	KdPrint(("¿ªÊ¼²âÊÔ----\n"));
 
-	HookDebug();
-	//Hook();
+	//HookDebug();
+	Hook();
 
 	//×¢²áÅÉÇ²º¯Êý
 	pDriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchRoutine_CONTROLE;
@@ -46,7 +48,9 @@ VOID Hook()
 	HookNtReadVirtualMemory();
 	HookNtWriteVirtualMemory();
 	HookKeAttachProcess();
-	HookKeStackAttachProcess();	//--error
+	HookKeStackAttachProcess();
+	HookDbgkpSetProcessDebugObject();
+	HookDbgkpQueueMessage();
 }
 
 #pragma PAGECODE
@@ -163,8 +167,8 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
 	
-	UnHookDebug();
-	//UnHook();	
+	//UnHookDebug();
+	UnHook();	
 	//É¾³ý·ûºÅÁ´½Ó
 	RtlInitUnicodeString(&symName,L"\\??\\MyDriverLinkName");
 	IoDeleteSymbolicLink(&symName);
@@ -190,4 +194,6 @@ VOID UnHook()
 	UnHookNtWriteVirtualMemory();
 	UnHookKeAttachProcess();
 	UnHookKeStackAttachProcess();
+	UnHookDbgkpSetProcessDebugObject();
+	UnHookDbgkpQueueMessage();
 }

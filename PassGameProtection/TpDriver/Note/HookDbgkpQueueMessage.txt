@@ -1,0 +1,6 @@
+1.nt!DbgkpPostFakeProcessCreateMessages+0x22->nt!DbgkpPostFakeThreadMessages+0x15c->nt!DbgkpQueueMessage
+2.nt!NtDebugActiveProcess+0xe4->nt!DbgkpPostFakeProcessCreateMessages+0x22->
+		nt!DbgkpPostFakeThreadMessages+0x29d->nt!DbgkSendSystemDllMessages+0x1dc->nt!DbgkpQueueMessage
+3.nt!DbgkpPostFakeProcessCreateMessages+0x42->nt!DbgkpPostModuleMessages+0x13b->nt!DbgkpQueueMessage
+4.nt!KiThreadStartup+0x19->nt!PspUserThreadStartup+0xf1->
+		nt!DbgkCreateThread+0x363->nt!DbgkpSendApiMessage+0x44->nt!DbgkpQueueMessage

@@ -1,0 +1,104 @@
+nt!NtDebugActiveProcess:
+840bab36 8bff            mov     edi,edi
+840bab38 55              push    ebp
+840bab39 8bec            mov     ebp,esp
+840bab3b 83ec10          sub     esp,10h
+840bab3e 64a124010000    mov     eax,dword ptr fs:[00000124h]
+840bab44 53              push    ebx
+840bab45 8a983a010000    mov     bl,byte ptr [eax+13Ah]
+840bab4b 57              push    edi
+840bab4c 6a00            push    0
+840bab4e 8d45fc          lea     eax,[ebp-4]
+840bab51 50              push    eax
+840bab52 885df4          mov     byte ptr [ebp-0Ch],bl
+840bab55 ff75f4          push    dword ptr [ebp-0Ch]
+840bab58 bf00080000      mov     edi,800h
+840bab5d ff352c50f783    push    dword ptr [nt!PsProcessType (83f7502c)]
+840bab63 57              push    edi
+840bab64 ff7508          push    dword ptr [ebp+8]
+840bab67 e8a832f7ff      call    nt!ObReferenceObjectByHandle (8402de14)
+840bab6c 85c0            test    eax,eax
+840bab6e 0f8cfd000000    jl      nt!NtDebugActiveProcess+0x13b (840bac71)
+840bab74 64a124010000    mov     eax,dword ptr fs:[00000124h]
+840bab7a 56              push    esi
+840bab7b 8b75fc          mov     esi,dword ptr [ebp-4]
+840bab7e 3b7050          cmp     esi,dword ptr [eax+50h]
+840bab81 0f84dd000000    je      nt!NtDebugActiveProcess+0x12e (840bac64)
+840bab87 3b353c50f783    cmp     esi,dword ptr [nt!PsInitialSystemProcess (83f7503c)]
+840bab8d 0f84d1000000    je      nt!NtDebugActiveProcess+0x12e (840bac64)
+840bab93 80fb01          cmp     bl,1
+840bab96 752d            jne     nt!NtDebugActiveProcess+0x8f (840babc5)
+840bab98 64a124010000    mov     eax,dword ptr fs:[00000124h]
+840bab9e 8b4050          mov     eax,dword ptr [eax+50h]
+840baba1 8b75fc          mov     esi,dword ptr [ebp-4]
+840baba4 85b86c020000    test    dword ptr [eax+26Ch],edi
+840babaa 7519            jne     nt!NtDebugActiveProcess+0x8f (840babc5)
+840babac 85be6c020000    test    dword ptr [esi+26Ch],edi
+840babb2 7411            je      nt!NtDebugActiveProcess+0x8f (840babc5)
+840babb4 8bce            mov     ecx,esi
+840babb6 e80891dcff      call    nt!ObfDereferenceObject (83e83cc3)
+840babbb b8120700c0      mov     eax,0C0000712h
+840babc0 e9ab000000      jmp     nt!NtDebugActiveProcess+0x13a (840bac70)
+840babc5 6a00            push    0
+840babc7 8d45f8          lea     eax,[ebp-8]
+840babca 50              push    eax
+840babcb ff75f4          push    dword ptr [ebp-0Ch]
+840babce ff35ac3df483    push    dword ptr [nt!DbgkDebugObjectType (83f43dac)]
+840babd4 6a02            push    2
+840babd6 ff750c          push    dword ptr [ebp+0Ch]
+840babd9 e83632f7ff      call    nt!ObReferenceObjectByHandle (8402de14)
+840babde 8bf8            mov     edi,eax
+840babe0 85ff            test    edi,edi
+840babe2 7c75            jl      nt!NtDebugActiveProcess+0x123 (840bac59)
+840babe4 81c6b0000000    add     esi,0B0h
+840babea 8b0e            mov     ecx,dword ptr [esi]
+840babec 83e1fe          and     ecx,0FFFFFFFEh
+840babef 8d4102          lea     eax,[ecx+2]
+840babf2 8bd0            mov     edx,eax
+840babf4 8bfe            mov     edi,esi
+840babf6 8bc1            mov     eax,ecx
+840babf8 f00fb117        lock cmpxchg dword ptr [edi],edx
+840babfc 3bc1            cmp     eax,ecx
+840babfe 740b            je      nt!NtDebugActiveProcess+0xd5 (840bac0b)
+840bac00 8bce            mov     ecx,esi
+840bac02 e8439bdeff      call    nt!ExfAcquireRundownProtection (83ea474a)
+840bac07 84c0            test    al,al
+840bac09 743e            je      nt!NtDebugActiveProcess+0x113 (840bac49)
+840bac0b 8d45f0          lea     eax,[ebp-10h]
+840bac0e 50              push    eax
+840bac0f ff75f8          push    dword ptr [ebp-8]
+840bac12 ff75fc          push    dword ptr [ebp-4]
+840bac15 e8a9feffff      call    nt!DbgkpPostFakeProcessCreateMessages (840baac3)
+840bac1a ff75f0          push    dword ptr [ebp-10h]
+840bac1d ff75f8          push    dword ptr [ebp-8]
+840bac20 ff75fc          push    dword ptr [ebp-4]
+840bac23 e884f6ffff      call    nt!DbgkpSetProcessDebugObject (840ba2ac)
+840bac28 8b0e            mov     ecx,dword ptr [esi]
+840bac2a 83e1fe          and     ecx,0FFFFFFFEh
+840bac2d 8bf8            mov     edi,eax
+840bac2f 8d41fe          lea     eax,[ecx-2]
+840bac32 8bd0            mov     edx,eax
+840bac34 8bde            mov     ebx,esi
+840bac36 8bc1            mov     eax,ecx
+840bac38 f00fb113        lock cmpxchg dword ptr [ebx],edx
+840bac3c 3bc1            cmp     eax,ecx
+840bac3e 740e            je      nt!NtDebugActiveProcess+0x118 (840bac4e)
+840bac40 8bce            mov     ecx,esi
+840bac42 e8c09bdeff      call    nt!ExfReleaseRundownProtection (83ea4807)
+840bac47 eb05            jmp     nt!NtDebugActiveProcess+0x118 (840bac4e)
+840bac49 bf0a0100c0      mov     edi,0C000010Ah
+840bac4e 8b4df8          mov     ecx,dword ptr [ebp-8]
+840bac51 e86d90dcff      call    nt!ObfDereferenceObject (83e83cc3)
+840bac56 8b75fc          mov     esi,dword ptr [ebp-4]
+840bac59 8bce            mov     ecx,esi
+840bac5b e86390dcff      call    nt!ObfDereferenceObject (83e83cc3)
+840bac60 8bc7            mov     eax,edi
+840bac62 eb0c            jmp     nt!NtDebugActiveProcess+0x13a (840bac70)
+840bac64 8bce            mov     ecx,esi
+840bac66 e85890dcff      call    nt!ObfDereferenceObject (83e83cc3)
+840bac6b b8220000c0      mov     eax,0C0000022h
+840bac70 5e              pop     esi
+840bac71 5f              pop     edi
+840bac72 5b              pop     ebx
+840bac73 c9              leave
+840bac74 c20800          ret     8

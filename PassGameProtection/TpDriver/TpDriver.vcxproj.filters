@@ -16,7 +16,7 @@
     <Filter Include="头文件\WindbgDebug">
       <UniqueIdentifier>{17161715-9477-44f7-b836-505a61a2830a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\HookDriver">
+    <Filter Include="头文件\HookTP">
       <UniqueIdentifier>{a2cad1cd-f2eb-4b7b-b821-8bc2b27c7e68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -48,25 +48,31 @@
       <Filter>头文件\WindbgDebug</Filter>
     </ClInclude>
     <ClInclude Include="Hook_KeAttachProcess.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_KeStackAttachProcess.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtOpenProcess.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtOpenThread.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtProtectVirtualMemory.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtReadVirtualMemory.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
     <ClInclude Include="Hook_NtWriteVirtualMemory.h">
-      <Filter>头文件\HookDriver</Filter>
+      <Filter>头文件\HookTP</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_DbgkpQueueMessage.h">
+      <Filter>头文件\HookTP</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook_DbgkpSetProcessDebugObject.h">
+      <Filter>头文件\HookTP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

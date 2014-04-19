@@ -70,7 +70,7 @@ bool CheckProcessName(char* szName)
 	return false;
 }
 
-//获取CALL后面的地址--有时候并不适用
+//获取CALL后面的地址
 ULONG GetCallAddr(ULONG nCallAddr)
 {
 	return (*((ULONG*)nCallAddr) + nCallAddr + 4);

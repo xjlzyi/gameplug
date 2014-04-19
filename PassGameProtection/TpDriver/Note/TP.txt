@@ -1,3 +1,4 @@
+//Ë«»÷µ÷ÊÔ
 KDCOM.dll:kdreceivepacket
 kdsendpacket
 //////////////////////////////////

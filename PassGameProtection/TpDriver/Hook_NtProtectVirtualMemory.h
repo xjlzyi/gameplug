@@ -29,13 +29,13 @@ VOID HookNtProtectVirtualMemory()
 // 	0x8464D40F		FF75 14			push dword ptr [ebp+14]      
 // 	0x8464D412		E8 CAE9E3FF		call 8448BDE1   
 	g_OriginNtProtectVirtualMemoryAddr = *((ULONG*)((ULONG)KeServiceDescriptorTable->ServiceTableBase+0x35C));
-	KdPrint(("NtReadVirtualMemory=%x\n",g_OriginNtProtectVirtualMemoryAddr));
+	KdPrint(("NtProtectVirtualMemory=%x\n",g_OriginNtProtectVirtualMemoryAddr));
 	//NtProtect第二个push的地址
 	g_NtProtectPushAddr = *((ULONG*)(g_OriginNtProtectVirtualMemoryAddr+3));
-	KdPrint(("NtRead第二个push的地址=%x\n",g_NtProtectPushAddr));
+	KdPrint(("NtProtect第二个push的地址=%x\n",g_NtProtectPushAddr));
 	//跳转地址
 	g_MyHookNtProtectVirtualMemoryAddr = g_OriginNtProtectVirtualMemoryAddr + 7;
-	KdPrint(("NtReadVirtualMemory中Call的地址=%x\n",g_MyHookNtProtectVirtualMemoryAddr));
+	KdPrint(("NtProtectVirtualMemory中Call的地址=%x\n",g_MyHookNtProtectVirtualMemoryAddr));
 	DisableWP();
 	__asm
 	{

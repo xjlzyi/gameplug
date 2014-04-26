@@ -1,29 +1,33 @@
-#ifndef __DRIVER_HEAD_H__
+ï»¿#ifndef __DRIVER_HEAD_H__
 #define __DRIVER_HEAD_H__
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-#include <NTDDK.h> //ÕâÀï°üº¬ĞèÒªÓÃC·½Ê½±àÒëµÄÍ·ÎÄ¼ş
+#include <NTDDK.h> //è¿™é‡ŒåŒ…å«éœ€è¦ç”¨Cæ–¹å¼ç¼–è¯‘çš„å¤´æ–‡ä»¶
 #ifdef __cplusplus
 }
 #endif 
 
 #include <windef.h>
 
-#define INITCODE code_seg("INIT") 
-#define PAGECODE code_seg("PAGE")/*ÄÚ´æ²»×ãÊ±£¬¿ÉÒÔÖÃ»»µ½Ó²ÅÌ*/
 
-#define hook_code CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define unhook_code CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
+
+#define INITCODE code_seg("INIT") 
+#define PAGECODE code_seg("PAGE")/*å†…å­˜ä¸è¶³æ—¶ï¼Œå¯ä»¥ç½®æ¢åˆ°ç¡¬ç›˜*/
+
+#define hook_tp CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define unhook_tp CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
+#define hook_windbg CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define unhook_windbg CTL_CODE(FILE_DEVICE_UNKNOWN, 0x803, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 typedef struct _ServiceDescriptorTable 
 {
-	PVOID ServiceTableBase;		//System Service Dispatch Table µÄ»ùµØÖ·  
-	PVOID ServiceCounterTable;	//°üº¬×Å SSDT ÖĞÃ¿¸ö·şÎñ±»µ÷ÓÃ´ÎÊıµÄ¼ÆÊıÆ÷¡£Õâ¸ö¼ÆÊıÆ÷Ò»°ãÓÉsysenter ¸üĞÂ¡£ 
-	unsigned int NumberOfServices;//ÓÉ ServiceTableBase ÃèÊöµÄ·şÎñµÄÊıÄ¿¡£  
-	PVOID ParamTableBase;		//°üº¬Ã¿¸öÏµÍ³·şÎñ²ÎÊı×Ö½ÚÊı±íµÄ»ùµØÖ·-ÏµÍ³·şÎñ²ÎÊı±í 
+	PVOID ServiceTableBase;		//System Service Dispatch Table çš„åŸºåœ°å€  
+	PVOID ServiceCounterTable;	//åŒ…å«ç€ SSDT ä¸­æ¯ä¸ªæœåŠ¡è¢«è°ƒç”¨æ¬¡æ•°çš„è®¡æ•°å™¨ã€‚è¿™ä¸ªè®¡æ•°å™¨ä¸€èˆ¬ç”±sysenter æ›´æ–°ã€‚ 
+	unsigned int NumberOfServices;//ç”± ServiceTableBase æè¿°çš„æœåŠ¡çš„æ•°ç›®ã€‚  
+	PVOID ParamTableBase;		//åŒ…å«æ¯ä¸ªç³»ç»ŸæœåŠ¡å‚æ•°å­—èŠ‚æ•°è¡¨çš„åŸºåœ°å€-ç³»ç»ŸæœåŠ¡å‚æ•°è¡¨ 
 }*PServiceDescriptorTable; 
 extern "C" extern PServiceDescriptorTable KeServiceDescriptorTable;
 
@@ -32,5 +36,75 @@ typedef struct _OldVariable
 	ULONG uAddr;
 	ULONG uVariableAddr;
 }HookVariableAddr;
+
+typedef enum _SYSTEM_INFORMATION_CLASS {  
+	SystemBasicInformation,  
+	SystemProcessorInformation,  
+	SystemPerformanceInformation,  
+	SystemTimeOfDayInformation,  
+	SystemPathInformation,  
+	SystemProcessInformation, //5  
+	SystemCallCountInformation,  
+	SystemDeviceInformation,  
+	SystemProcessorPerformanceInformation,  
+	SystemFlagsInformation,  
+	SystemCallTimeInformation,  
+	SystemModuleInformation,  
+	SystemLocksInformation,  
+	SystemStackTraceInformation,  
+	SystemPagedPoolInformation,  
+	SystemNonPagedPoolInformation,  
+	SystemHandleInformation,  
+	SystemObjectInformation,  
+	SystemPageFileInformation,  
+	SystemVdmInstemulInformation,  
+	SystemVdmBopInformation,  
+	SystemFileCacheInformation,  
+	SystemPoolTagInformation,  
+	SystemInterruptInformation,  
+	SystemDpcBehaviorInformation,  
+	SystemFullMemoryInformation,  
+	SystemLoadGdiDriverInformation,  
+	SystemUnloadGdiDriverInformation,  
+	SystemTimeAdjustmentInformation,  
+	SystemSummaryMemoryInformation,  
+	SystemNextEventIdInformation,  
+	SystemEventIdsInformation,  
+	SystemCrashDumpInformation,  
+	SystemExceptionInformation,  
+	SystemCrashDumpStateInformation,  
+	SystemKernelDebuggerInformation,  
+	SystemContextSwitchInformation,  
+	SystemRegistryQuotaInformation,  
+	SystemExtendServiceTableInformation,  
+	SystemPrioritySeperation,  
+	SystemPlugPlayBusInformation,  
+	SystemDockInformation,  
+	SystemPowerInformation2,  
+	SystemProcessorSpeedInformation,  
+	SystemCurrentTimeZoneInformation,  
+	SystemLookasideInformation  
+} SYSTEM_INFORMATION_CLASS, *PSYSTEM_INFORMATION_CLASS;
+
+typedef struct _SYSTEM_MODULE_INFORMATION
+{
+	ULONG Reserved[2];
+	PVOID Base;
+	ULONG Size;
+	ULONG Flags;
+	USHORT Index;
+	USHORT Unknown;
+	USHORT LoadCount;
+	USHORT ModuleNameOffset;
+	CHAR ImageName[256];
+}SYSTEM_MODULE_INFORMATION, *PSYSTEM_MODULE_INFORMATION;
+
+extern "C"  NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(   
+	IN ULONG SystemInformationClass,   
+	IN PVOID SystemInformation,   
+	IN ULONG SystemInformationLength,   
+	OUT PULONG ReturnLength);
+
+
 
 #endif

@@ -5,8 +5,10 @@
 #pragma once
 #include "afxwin.h"
 
-#define hook_code CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define unhook_code CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
+#define hook_tp CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define unhook_tp CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
+#define hook_windbg CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define unhook_windbg CTL_CODE(FILE_DEVICE_UNKNOWN, 0x803, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 // CPassGameProtectionDlg ¶Ô»°¿ò
 class CPassGameProtectionDlg : public CDialogEx
@@ -52,4 +54,8 @@ public:
 	CButton m_btnStopService;
 	afx_msg void OnBnClickedBtnStartService();
 	afx_msg void OnBnClickedBtnStopService();
+	afx_msg void OnBnClickedBtnStartdebug();
+	afx_msg void OnBnClickedBtnStopdebug();
+	CButton m_btnStartDebug;
+	CButton m_btnStopDebug;
 };

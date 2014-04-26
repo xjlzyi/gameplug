@@ -74,5 +74,8 @@
     <ClInclude Include="Hook_DbgkpSetProcessDebugObject.h">
       <Filter>头文件\HookTP</Filter>
     </ClInclude>
+    <ClInclude Include="ntos.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

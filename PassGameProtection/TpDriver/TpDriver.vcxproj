@@ -146,6 +146,7 @@
     <ClInclude Include="Hook_NtReadVirtualMemory.h" />
     <ClInclude Include="Hook_NtWriteVirtualMemory.h" />
     <ClInclude Include="MyDriverSys.h" />
+    <ClInclude Include="ntos.h" />
     <ClInclude Include="passtp.h" />
     <ClInclude Include="WindbgDebug\Hook_KdDebuggerEnabled.h" />
     <ClInclude Include="WindbgDebug\Hook_KdDisableDebug.h" />

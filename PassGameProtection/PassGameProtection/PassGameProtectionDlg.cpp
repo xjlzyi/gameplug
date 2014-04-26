@@ -60,6 +60,8 @@ void CPassGameProtectionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_STOP, m_btnStopSys);
 	DDX_Control(pDX, IDC_BTN_START_SERVICE, m_btnStartService);
 	DDX_Control(pDX, IDC_BTN_STOP_SERVICE, m_btnStopService);
+	DDX_Control(pDX, IDC_BTN_STARTDEBUG, m_btnStartDebug);
+	DDX_Control(pDX, IDC_BTN_STOPDEBUG, m_btnStopDebug);
 }
 
 BEGIN_MESSAGE_MAP(CPassGameProtectionDlg, CDialogEx)
@@ -71,6 +73,8 @@ BEGIN_MESSAGE_MAP(CPassGameProtectionDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_STOP, &CPassGameProtectionDlg::OnBnClickedBtnStop)
 	ON_BN_CLICKED(IDC_BTN_START_SERVICE, &CPassGameProtectionDlg::OnBnClickedBtnStartService)
 	ON_BN_CLICKED(IDC_BTN_STOP_SERVICE, &CPassGameProtectionDlg::OnBnClickedBtnStopService)
+	ON_BN_CLICKED(IDC_BTN_STARTDEBUG, &CPassGameProtectionDlg::OnBnClickedBtnStartdebug)
+	ON_BN_CLICKED(IDC_BTN_STOPDEBUG, &CPassGameProtectionDlg::OnBnClickedBtnStopdebug)
 END_MESSAGE_MAP()
 
 
@@ -326,7 +330,7 @@ BOOL CPassGameProtectionDlg::SendIRP(int code,LPVOID inBuffer,DWORD intBufferSiz
 void CPassGameProtectionDlg::OnBnClickedBtnStartService()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	if (!SendIRP(hook_code,NULL,0,NULL,0))
+	if (!SendIRP(hook_tp,NULL,0,NULL,0))
 	{
 		MessageBox("操作失败","Error!",MB_OK);
 		return;
@@ -346,7 +350,7 @@ void CPassGameProtectionDlg::OnBnClickedBtnStopService()
 		MessageBox( "连接驱动设备失败","Error",MB_OK|MB_ICONHAND);
 		return;
 	}
-	if (!SendIRP(unhook_code,NULL,0,NULL,0))
+	if (!SendIRP(unhook_tp,NULL,0,NULL,0))
 	{
 		MessageBox("操作失败","Error",MB_OK);
 		return;
@@ -355,4 +359,26 @@ void CPassGameProtectionDlg::OnBnClickedBtnStopService()
 	m_btnStartService.EnableWindow(TRUE);
 	m_btnStopService.EnableWindow(FALSE);
 	m_btnStopSys.EnableWindow(TRUE);
+}
+
+//开启双机调试模式
+void CPassGameProtectionDlg::OnBnClickedBtnStartdebug()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!SendIRP(hook_windbg,NULL,0,NULL,0))
+	{
+		MessageBox("操作失败","Error",MB_OK);
+		return;
+	}
+}
+
+//停止双机调试
+void CPassGameProtectionDlg::OnBnClickedBtnStopdebug()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!SendIRP(unhook_windbg,NULL,0,NULL,0))
+	{
+		MessageBox("操作失败","Error",MB_OK);
+		return;
+	}
 }

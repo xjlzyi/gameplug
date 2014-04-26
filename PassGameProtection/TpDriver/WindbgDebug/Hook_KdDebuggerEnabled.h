@@ -11,9 +11,41 @@ BOOL g_bKdPitchDebugger = FALSE;
 //HOOK的KdDebuggerEnabled变量和地址
 HookVariableAddr g_uKdDebuggerEnabledHookAddrs[5]={0};
 
+ULONG g_uKdDebuggerEnabled;
+
+ULONG g_uKdPitchDebugger;
+
+#pragma PAGECODE
+VOID MovKdPitchDebugger_Win7()
+{
+	DisableWP();
+	*(PULONG)g_uKdPitchDebugger = g_bKdPitchDebugger;
+	EnableWP();
+	KdPrint(("KdPitchDebugger值=%x\n",*(PULONG)g_uKdPitchDebugger));
+}
+
+#pragma PAGECODE
+VOID MovKdDebuggerEnabled_Win7()
+{
+	DisableWP();
+	*(PULONG)g_uKdDebuggerEnabled = g_bKdDebuggerEnabled;
+	EnableWP();
+	KdPrint(("KdDebuggerEnabled值=%x\n",*(PULONG)g_bKdDebuggerEnabled));
+}
+
 #pragma PAGECODE
 VOID MoveVariable_Win7()
-{
+{	
+// 	ULONG uKeUpdateRunTimeAddr = GetServiceOldAddr(L"KeUpdateRunTime");
+// 	char pCode[]={(char)0x74, (char)0x12, (char)0xa1};
+// 	ULONG uAddr = SearchCode(uKeUpdateRunTimeAddr,pCode,sizeof(pCode)) - 8;
+// 	KdPrint(("KeUpdateRunTime->KdDebuggerEnabled=%x\n",uAddr));
+// 	g_uKdDebuggerEnabled = *(PULONG)uAddr;
+// 	DisableWP();
+// 	*(PULONG)(*(PULONG)uAddr) = g_bKdDebuggerEnabled;
+// 	EnableWP();
+
+
 	// 	83e850c2 803d2cfdf68300  cmp     byte ptr [nt!KdDebuggerEnabled (83f6fd2c)],0
 	// 	83e850c9 7412            je      nt!KeUpdateRunTime+0x164 (83e850dd)
 	// 	83e850cb a1ec31f483      mov     eax,dword ptr [nt!POGOBuffer+0x6ac (83f431ec)]
@@ -57,7 +89,20 @@ VOID MoveVariable_Win7()
 	// 	83ebe0f0 7519            jne     nt!KdCheckForDebugBreak+0x22 (83ebe10b)
 	//KdPitchDebugger的函数地址
 	uAddr2 += 2;
-	KdPrint(("KdPitchDebugger函数地址=%x\n",uAddr2));
+// 	g_uKdPitchDebugger = *(PULONG)uAddr2;
+// 	KdPrint(("KdPitchDebugger函数地址=%x\n",*(PULONG)uAddr2));
+// 	KdPrint(("KdDebuggerEnabled函数地址=%x\n",g_uKdDebuggerEnabled));
+// 	KdPrint(("KdDebuggerEnabled值=%x\n",*(PULONG)g_uKdDebuggerEnabled));
+// 	DisableWP();
+// 	*(PULONG)g_uKdPitchDebugger = g_bKdPitchDebugger;
+// 	EnableWP();
+// 	KdPrint(("KdPitchDebugger值=%x\n",*(PULONG)g_uKdPitchDebugger));
+// 	MovKdPitchDebugger_Win7();
+// 	DisableWP();
+// 	*(PULONG)g_uKdDebuggerEnabled = g_bKdDebuggerEnabled;
+// 	EnableWP();
+// 	KdPrint(("KdDebuggerEnabled2值=%x\n",*(PULONG)g_uKdDebuggerEnabled));
+// 	MovKdDebuggerEnabled_Win7();
 	g_uKdDebuggerEnabledHookAddrs[2].uAddr = uAddr2;
 	g_uKdDebuggerEnabledHookAddrs[2].uVariableAddr = *(PULONG)uAddr2;
 	DisableWP();
@@ -103,10 +148,34 @@ VOID MoveVariable_Win7()
 	*(PULONG)uAddr2=(ULONG)&g_bKdPitchDebugger;
 	EnableWP();
 }
+#pragma PAGECODE
+VOID ResetKdPitchDebugger()
+{
+	DisableWP();
+	*(PULONG)g_uKdPitchDebugger = 0x300;
+	EnableWP();
+	KdPrint(("KdPitchDebugger值=%x\n",*(PULONG)g_uKdPitchDebugger));
+}
+
+#pragma PAGECODE
+VOID ResetKdDebuggerEnabled()
+{
+	DisableWP();
+	*(PULONG)g_uKdDebuggerEnabled = g_bKdPitchDebugger;
+	EnableWP();
+	KdPrint(("KdDebuggerEnabled值=%x\n",*(PULONG)g_uKdDebuggerEnabled));
+}
 
 #pragma PAGECODE
 VOID ResetVariable_Win7()
 {
+// 	ResetKdPitchDebugger();
+// 	ResetKiDebugRutine_Win7();
+// 	ResetKdDebuggerEnabled();
+// 	ULONG uAddr = 0x83f7ad24;
+// 	DisableWP();
+// 	*(PULONG)uAddr = 1;
+// 	EnableWP();
 	for (int i = 0; i < 5; i++)
 	{
 		DisableWP();

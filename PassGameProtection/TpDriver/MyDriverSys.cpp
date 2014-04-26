@@ -8,18 +8,21 @@
 #include "Hook_KeStackAttachProcess.h"
 #include "Hook_DbgkpSetProcessDebugObject.h"
 #include "Hook_DbgkpQueueMessage.h"
-#include "WindbgDebug/Hook_KdDisableDebug.h"
-#include "WindbgDebug/Hook_KdDebuggerEnabled.h"
+//#include "WindbgDebug/Hook_KdDisableDebug.h"
 #include "WindbgDebug/Hook_KiDebugRoutine.h"
+#include "WindbgDebug/Hook_KdDebuggerEnabled.h"
 
+
+bool bHook = false;
+bool bHookWindbg = false;
 
 #pragma INITCODE
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 {
 	KdPrint(("开始测试----\n"));
 
-	//HookDebug();
-	Hook();
+	HookDebug();
+	//Hook();
 
 	//注册派遣函数
 	pDriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchRoutine_CONTROLE;
@@ -28,20 +31,34 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,PUNICODE_STRING B)
 	pDriverObject->MajorFunction[IRP_MJ_CLOSE] = DispatchRoutine_CONTROLE;
 	pDriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchRoutine_CONTROLE;
 
-	CreateMyDevice(pDriverObject);
+	 if (STATUS_SUCCESS != CreateMyDevice(pDriverObject))
+		 return -1;
 	pDriverObject->DriverUnload=Driver_Unload;
 
 	return STATUS_SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//	双击调试，需要修改的几个值
+//	KdEnterDebugger()返回的值 = 0 
+// 	KdPitchDebugger = TRUE;
+// 	KiDebugRoutine = KdpStub;
+// 	KdDebuggerEnabled = FALSE;
+//////////////////////////////////////////////////////////////////////////
 VOID HookDebug()
 {
-	MoveVariable_Win7();
+	if (bHookWindbg)
+		return;
+	bHookWindbg = true;
 	MoveKiDebugRutine_Win7();
+	MoveVariable_Win7();		
 }
 
 VOID Hook()
-{	
+{
+	if (bHook)
+		return;
+	bHook = true;
 	HookNtOpenProcess_Win7();
 	HookNtOpenThread_Win7();
 	HookNtProtectVirtualMemory();
@@ -49,8 +66,9 @@ VOID Hook()
 	HookNtWriteVirtualMemory();
 	HookKeAttachProcess();
 	HookKeStackAttachProcess();
-	HookDbgkpSetProcessDebugObject();
-	HookDbgkpQueueMessage();
+	//还没HOOK
+// 	HookDbgkpSetProcessDebugObject();
+// 	HookDbgkpQueueMessage();
 }
 
 #pragma PAGECODE
@@ -70,18 +88,36 @@ NTSTATUS DispatchRoutine_CONTROLE(IN PDEVICE_OBJECT pDriver, IN PIRP pIrp)
 			ULONG code = stack->Parameters.DeviceIoControl.IoControlCode;
 			switch (code)
 			{
-			case hook_code:
+			case hook_tp:
 				{
-					HookKeAttachProcess();
-					HookKeStackAttachProcess();
+					Hook();
 					//设置实际缓冲区大小
 					info = 4;
 				}				
 				break;
-			case unhook_code:
+			case unhook_tp:
 				{
-					UnHookKeAttachProcess();
-					UnHookKeStackAttachProcess();
+					if (bHook)
+					{
+						UnHook();
+					}					
+					//设置实际缓冲区大小
+					info = 4;
+				}
+				break;
+			case hook_windbg:
+				{
+					if (bHookWindbg)
+					{
+						HookDebug();
+					}					
+					//设置实际缓冲区大小
+					info = 4;
+				}
+				break;
+			case unhook_windbg:
+				{
+					UnHookDebug();
 					//设置实际缓冲区大小
 					info = 4;
 				}
@@ -162,13 +198,35 @@ NTSTATUS CreateMyDevice(IN PDRIVER_OBJECT pDriverObject)
 }
 
 #pragma PAGECODE
+VOID TestHook()
+{
+	ULONG uAddr1 = 0x83f6cd24;		//KdEnteredDebugger	to 1
+	ULONG uAddr2 = 0x83f6cd2c;		//KdDebuggerEnabled  to 1
+	ULONG uAddr3 = 0x83f30d27;		//KdPitchDebugger to 0
+	DisableWP();
+	*(PULONG)uAddr1 = 1;
+	*(PULONG)uAddr2 = 1;
+	*(PULONG)uAddr3 = 0;
+	EnableWP();
+}
+
+#pragma PAGECODE
 VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 {
+	TestHook();
 	PDEVICE_OBJECT pDev;
 	UNICODE_STRING symName;
+
+	if (bHookWindbg)
+	{
+		UnHookDebug();
+	}
 	
-	//UnHookDebug();
-	UnHook();	
+	if (bHook)
+	{
+		UnHook();
+	}
+	
 	//删除符号链接
 	RtlInitUnicodeString(&symName,L"\\??\\MyDriverLinkName");
 	IoDeleteSymbolicLink(&symName);
@@ -181,8 +239,8 @@ VOID Driver_Unload(IN PDRIVER_OBJECT pDriverObject)
 
 VOID UnHookDebug()
 {
-	ResetVariable_Win7();
 	ResetKiDebugRutine_Win7();
+	ResetVariable_Win7();
 }
 
 VOID UnHook()
@@ -194,6 +252,6 @@ VOID UnHook()
 	UnHookNtWriteVirtualMemory();
 	UnHookKeAttachProcess();
 	UnHookKeStackAttachProcess();
-	UnHookDbgkpSetProcessDebugObject();
-	UnHookDbgkpQueueMessage();
+// 	UnHookDbgkpSetProcessDebugObject();
+// 	UnHookDbgkpQueueMessage();
 }
